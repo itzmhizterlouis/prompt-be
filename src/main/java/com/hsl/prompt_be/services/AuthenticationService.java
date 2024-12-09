@@ -11,9 +11,9 @@ import com.hsl.prompt_be.entities.requests.UserRequest;
 import com.hsl.prompt_be.entities.responses.GenericResponse;
 import com.hsl.prompt_be.entities.responses.LoginResponse;
 import com.hsl.prompt_be.entities.responses.UserResponse;
-import com.hsl.prompt_be.exception.OtpNotFoundException;
-import com.hsl.prompt_be.exception.PrinthubException;
-import com.hsl.prompt_be.exception.UserNotFoundException;
+import com.hsl.prompt_be.exceptions.OtpNotFoundException;
+import com.hsl.prompt_be.exceptions.PrinthubException;
+import com.hsl.prompt_be.exceptions.UserNotFoundException;
 import com.hsl.prompt_be.repositories.PrinterRepository;
 import com.hsl.prompt_be.repositories.UserOtpRepository;
 import com.hsl.prompt_be.repositories.UserRepository;
@@ -108,12 +108,12 @@ public class AuthenticationService {
         }
     }
 
-    public Printer createPrinter(PrinterRequest request) throws UserNotFoundException {
+    public Printer createPrinter(PrinterRequest request, UUID userId) throws UserNotFoundException {
 
         Printer printer = Printer.builder()
-                .userId(request.getUserId())
-                .name(request.getName())
-                .location(request.getLocation())
+                .userId(userId)
+                .name(request.getName().toUpperCase())
+                .location(request.getLocation().toUpperCase())
                 .description(request.getDescription())
                 .colouredRate(request.getColouredRate())
                 .uncolouredRate(request.getUncolouredRate())
@@ -126,7 +126,7 @@ public class AuthenticationService {
                 .weekendClosing(request.getWeekendClosing())
                 .build();
 
-        User user = userRepository.findByUserId(request.getUserId()).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByUserId(userId).orElseThrow(UserNotFoundException::new);
         user.setPrinter(true);
         user.setUpdatedAt(Instant.now());
 

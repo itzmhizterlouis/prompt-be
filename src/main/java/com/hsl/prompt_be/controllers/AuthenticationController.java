@@ -8,20 +8,23 @@ import com.hsl.prompt_be.entities.requests.UserRequest;
 import com.hsl.prompt_be.entities.responses.GenericResponse;
 import com.hsl.prompt_be.entities.responses.LoginResponse;
 import com.hsl.prompt_be.entities.responses.UserResponse;
-import com.hsl.prompt_be.exception.OtpNotFoundException;
-import com.hsl.prompt_be.exception.PrinthubException;
-import com.hsl.prompt_be.exception.UserNotFoundException;
+import com.hsl.prompt_be.exceptions.OtpNotFoundException;
+import com.hsl.prompt_be.exceptions.PrinthubException;
+import com.hsl.prompt_be.exceptions.UserNotFoundException;
 import com.hsl.prompt_be.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
-@RequestMapping("authentication/")
+@RequestMapping("authentication")
 @RestController
 public class AuthenticationController {
 
@@ -57,9 +60,9 @@ public class AuthenticationController {
         return authenticationService.getLoggedInUser();
     }
 
-    @PostMapping("printer")
-    public Printer createPrinter(@RequestBody PrinterRequest request) throws UserNotFoundException {
+    @PostMapping("{userId}/printers")
+    public Printer createPrinter(@RequestBody PrinterRequest request, @PathVariable UUID userId) throws UserNotFoundException {
 
-        return authenticationService.createPrinter(request);
+        return authenticationService.createPrinter(request, userId);
     }
 }
