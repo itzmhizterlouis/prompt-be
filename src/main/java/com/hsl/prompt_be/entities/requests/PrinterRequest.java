@@ -3,12 +3,9 @@ package com.hsl.prompt_be.entities.requests;
 import lombok.Data;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Data
 public class PrinterRequest {
-
-    private UUID userId;
 
     private String name;
     private String location;

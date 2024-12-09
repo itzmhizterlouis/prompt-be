@@ -1,4 +1,4 @@
-package com.hsl.prompt_be.exception;
+package com.hsl.prompt_be.exceptions;
 
 public class UserNotFoundException extends EntityNotFoundException {
 
