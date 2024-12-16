@@ -30,7 +30,7 @@ public class PrinterService {
         return printerRepository.findById(printerId).orElseThrow(PrinterNotFoundException::new);
     }
 
-    public List<Printer> searchPrinterByTag(String tag) {
+    public List<Printer> searchPrinterByNameOrLocation(String tag) {
 
         return printerRepository.findByNameContainingIgnoreCaseOrLocationContainingIgnoreCase(tag, tag);
     }
