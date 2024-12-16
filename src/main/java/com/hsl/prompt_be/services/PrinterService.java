@@ -3,12 +3,15 @@ package com.hsl.prompt_be.services;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
+import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.repositories.PrinterRepository;
+import com.hsl.prompt_be.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -51,5 +54,10 @@ public class PrinterService {
         printer.setUpdatedAt(Instant.now());
 
         return printerRepository.save(printer);
+    }
+
+    public Optional<Printer> getLoggedInPrinter() throws PrinthubException {
+
+        return printerRepository.findById(UserUtil.getLoggedInUser().getUserId());
     }
 }

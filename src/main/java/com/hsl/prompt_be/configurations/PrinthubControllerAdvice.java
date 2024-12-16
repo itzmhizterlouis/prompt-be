@@ -27,7 +27,7 @@ public class PrinthubControllerAdvice {
 
         System.out.println(ex.getMessage());
         AppResponse message = AppResponse.builder()
-                .message("ENTITY ALREADY EXISTS")
+                .message("DATA INTEGRITY VIOLATION. " + ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST).build();
 
         return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);

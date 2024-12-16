@@ -50,7 +50,6 @@ public class AuthenticationService {
                 .lastName(userRequest.getLastName())
                 .email(userRequest.getEmail())
                 .password(passwordEncoder.encode(userRequest.getPassword()))
-                .isPrinter(userRequest.isPrinter())
                 .build();
 
         userRepository.save(user).toDto();
@@ -76,6 +75,7 @@ public class AuthenticationService {
                 .isPrinter(user.isPrinter())
                 .isEmailVerified(user.isEmailVerified())
                 .isEnabled(user.isEnabled())
+                .userId(user.getUserId())
                 .build();
     }
 
