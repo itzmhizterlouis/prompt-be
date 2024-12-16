@@ -99,4 +99,12 @@ public class OrderService {
 
         throw new UnauthorizedException("You're not associated with this order");
     }
+
+    public void throwErrorIfUserHasNoOrders(UUID printerId) throws PrinthubException {
+
+        if (!orderRepository.existsByPrinterIdAndCustomerId(printerId, UserUtil.getLoggedInUser().getUserId())) {
+
+            throw new UnauthorizedException("You've not made an order to this printer");
+        }
+    }
 }

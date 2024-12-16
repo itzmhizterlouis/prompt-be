@@ -34,7 +34,7 @@ public class SecurityConfiguration {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/authentication/signup", "/authentication/login", "/authentication/verify-otp").permitAll() // Allow access to "/auth/**"
+                        .requestMatchers("/authentication/signup", "/authentication/login", "/authentication/verify-otp", "authentication/{userId}/printers").permitAll() // Allow access to "/auth/**"
                         .anyRequest().authenticated() // Require authentication for all other requests
                 )
                 .sessionManagement(session -> session

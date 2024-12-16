@@ -10,5 +10,5 @@ import java.util.UUID;
 @Repository
 public interface PrinterRepository extends JpaRepository<Printer, UUID> {
 
-    List<Printer> findByNameContainingIgnoreCaseOrLocationContainingIgnoreCase(String tag1, String tag2);
+    List<Printer> findAllByNameContainingIgnoreCaseOrLocationContainingIgnoreCase(String tag1, String tag2);
 }

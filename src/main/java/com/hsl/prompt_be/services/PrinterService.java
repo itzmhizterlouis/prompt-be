@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -22,17 +23,18 @@ public class PrinterService {
 
     public List<Printer> getAllPrinters() {
 
-        return printerRepository.findAll();
+        return printerRepository.findAll().parallelStream().map(Printer::toDto).collect(Collectors.toList());
     }
 
     public Printer getPrinterById(UUID printerId) throws PrinterNotFoundException {
 
-        return printerRepository.findById(printerId).orElseThrow(PrinterNotFoundException::new);
+        return printerRepository.findById(printerId).orElseThrow(PrinterNotFoundException::new).toDto();
     }
 
     public List<Printer> searchPrinterByNameOrLocation(String tag) {
 
-        return printerRepository.findByNameContainingIgnoreCaseOrLocationContainingIgnoreCase(tag, tag);
+        return printerRepository.findAllByNameContainingIgnoreCaseOrLocationContainingIgnoreCase(tag, tag)
+                .parallelStream().map(Printer::toDto).collect(Collectors.toList());
     }
 
     public Printer updatePrinter(UUID printerId, PrinterRequest request) throws PrinterNotFoundException {
@@ -53,7 +55,7 @@ public class PrinterService {
         printer.setWeekendOpening(request.getWeekendOpening());
         printer.setUpdatedAt(Instant.now());
 
-        return printerRepository.save(printer);
+        return printerRepository.save(printer).toDto();
     }
 
     public Optional<Printer> getLoggedInPrinter() throws PrinthubException {
