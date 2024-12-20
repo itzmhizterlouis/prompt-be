@@ -30,7 +30,7 @@ public class Order {
     @Builder.Default private UUID orderId = UUID.randomUUID();
 
     private String description;
-    private double charge;
+    private int charge;
 
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType; // on_delivery, online

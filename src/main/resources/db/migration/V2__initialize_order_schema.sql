@@ -4,7 +4,7 @@ create table if not exists orders (
     description varchar(255) default null,
     payment_type varchar(50) not null,
     status varchar(50) not null,
-    charge double precision not null,
+    charge int not null,
     paid boolean not null default false,
     completed boolean not null default false,
 

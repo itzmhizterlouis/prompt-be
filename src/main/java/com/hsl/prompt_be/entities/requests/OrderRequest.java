@@ -10,7 +10,7 @@ import java.util.List;
 public class OrderRequest {
 
     private String description;
-    private double charge;
+    private int charge;
     private PaymentType paymentType;
     private Instant timeExpected;
     private List<OrderDocumentRequest> documents;
