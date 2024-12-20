@@ -4,8 +4,10 @@ import com.hsl.prompt_be.entities.models.Order;
 import com.hsl.prompt_be.entities.requests.OrderRequest;
 import com.hsl.prompt_be.entities.requests.SearchOrderRequest;
 import com.hsl.prompt_be.entities.requests.UpdateOrderRequest;
+import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
 import com.hsl.prompt_be.exceptions.OrderNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
+import com.hsl.prompt_be.exceptions.UserNotFoundException;
 import com.hsl.prompt_be.services.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,5 +50,11 @@ public class OrderController {
     public Order getOrderById(@PathVariable UUID orderId) throws OrderNotFoundException {
 
         return orderService.getOrderById(orderId);
+    }
+
+    @GetMapping("payments/initiate/{orderId}")
+    public KorapayCheckoutResponse onlineOrderPayment(@PathVariable UUID orderId) throws OrderNotFoundException, UserNotFoundException {
+
+        return orderService.onlineOrderPayment(orderId);
     }
 }

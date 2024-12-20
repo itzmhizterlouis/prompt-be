@@ -3,12 +3,15 @@ package com.hsl.prompt_be.services;
 import com.hsl.prompt_be.entities.models.Order;
 import com.hsl.prompt_be.entities.models.OrderDocument;
 import com.hsl.prompt_be.entities.models.Printer;
+import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.requests.OrderRequest;
 import com.hsl.prompt_be.entities.requests.SearchOrderRequest;
 import com.hsl.prompt_be.entities.requests.UpdateOrderRequest;
+import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
 import com.hsl.prompt_be.exceptions.OrderNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UnauthorizedException;
+import com.hsl.prompt_be.exceptions.UserNotFoundException;
 import com.hsl.prompt_be.repositories.OrderRepository;
 import com.hsl.prompt_be.repositories.specifications.OrderSpecification;
 import com.hsl.prompt_be.utils.UserUtil;
@@ -29,6 +32,8 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final PrinterService printerService;
+    private final PaymentService paymentService;
+    private final UserService userService;
 
     public Order createOrder(UUID printerId, OrderRequest request) throws PrinthubException {
 
@@ -81,6 +86,14 @@ public class OrderService {
     public Order getOrderById(UUID orderId) throws OrderNotFoundException {
 
         return orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new).toDto();
+    }
+
+    public KorapayCheckoutResponse onlineOrderPayment(UUID orderId) throws OrderNotFoundException, UserNotFoundException {
+
+        Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
+        User user = userService.findByUserId(order.getCustomerId());
+
+        return paymentService.initiateOrderPayment(order, user);
     }
 
     public void throwErrorIfUserNotInvolvedWithOrder(Order order) throws PrinthubException {
