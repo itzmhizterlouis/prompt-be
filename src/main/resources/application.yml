@@ -38,3 +38,14 @@ security:
     secret-key: ${JWT_SECRET}
     expiration-time: ${JWT_EXPIRATION}
 
+server:
+  servlet:
+    context-path: /api/v1
+
+korapay:
+  checkout:
+    url: ${KORAPAY_PAYOUT_URL}
+  api:
+    key:
+      secret: ${KORAPAY_API_SECRET}
+      public: ${KORAPAY_API_PUBLIC_KEY}

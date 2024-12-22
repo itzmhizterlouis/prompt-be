@@ -1,7 +1,6 @@
 package com.hsl.prompt_be.entities.models;
 
 import com.hsl.prompt_be.entities.responses.UserResponse;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -32,8 +31,8 @@ public class User implements UserDetails {
     private String lastName;
     private String email;
     private String password;
-    private boolean isPrinter;
 
+    @Builder.Default private boolean isPrinter = false;
     @Builder.Default private boolean accountNonExpired = true;
     @Builder.Default private boolean accountNonLocked = true;
     @Builder.Default private boolean enabled = true;

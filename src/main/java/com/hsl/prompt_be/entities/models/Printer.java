@@ -1,14 +1,19 @@
 package com.hsl.prompt_be.entities.models;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -38,6 +43,18 @@ public class Printer {
     private Instant weekendClosing;
     private Instant weekendOpening;
 
+    @Transient
+    private int rating;
+
+    @OneToMany(mappedBy = "printerId", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Review> reviews;
+
     @Builder.Default private Instant createdAt = Instant.now();
     @Builder.Default private Instant updatedAt = Instant.now();
+
+    public Printer toDto() {
+
+        rating = reviews.stream().mapToInt(Review::getRating).sum();
+        return this;
+    }
 }

@@ -35,9 +35,9 @@ public class PrinterController {
     }
 
     @GetMapping("search/{tag}")
-    public List<Printer> searchPrinterByTag(@PathVariable String tag) {
+    public List<Printer> searchPrinterByNameOrLocation(@PathVariable String tag) {
 
-        return printerService.searchPrinterByTag(tag);
+        return printerService.searchPrinterByNameOrLocation(tag);
     }
 
     @PutMapping("{printerId}")

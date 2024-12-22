@@ -1,6 +1,7 @@
 package com.hsl.prompt_be.services;
 
 import com.hsl.prompt_be.entities.models.Printer;
+import com.hsl.prompt_be.entities.models.PrinterWallet;
 import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.models.UserOtp;
 import com.hsl.prompt_be.entities.requests.EmailDetails;
@@ -42,6 +43,7 @@ public class AuthenticationService {
     private final EmailService emailService;
     private final UserOtpRepository userOtpRepository;
     private final PrinterRepository printerRepository;
+    private final PrinterWalletService printerWalletService;
 
     public UserResponse signUp(UserRequest userRequest) {
 
@@ -50,7 +52,6 @@ public class AuthenticationService {
                 .lastName(userRequest.getLastName())
                 .email(userRequest.getEmail())
                 .password(passwordEncoder.encode(userRequest.getPassword()))
-                .isPrinter(userRequest.isPrinter())
                 .build();
 
         userRepository.save(user).toDto();
@@ -76,6 +77,7 @@ public class AuthenticationService {
                 .isPrinter(user.isPrinter())
                 .isEmailVerified(user.isEmailVerified())
                 .isEnabled(user.isEnabled())
+                .userId(user.getUserId())
                 .build();
     }
 
@@ -108,6 +110,7 @@ public class AuthenticationService {
         }
     }
 
+    @Transactional
     public Printer createPrinter(PrinterRequest request, UUID userId) throws UserNotFoundException {
 
         Printer printer = Printer.builder()
@@ -126,11 +129,15 @@ public class AuthenticationService {
                 .weekendClosing(request.getWeekendClosing())
                 .build();
 
+        PrinterWallet printerWallet = PrinterWallet.builder()
+                .printerId(printer.getPrinterId()).build();
+
         User user = userRepository.findByUserId(userId).orElseThrow(UserNotFoundException::new);
         user.setPrinter(true);
         user.setUpdatedAt(Instant.now());
 
         printerRepository.save(printer);
+        printerWalletService.save(printerWallet);
         userRepository.save(user);
 
         return printer;
