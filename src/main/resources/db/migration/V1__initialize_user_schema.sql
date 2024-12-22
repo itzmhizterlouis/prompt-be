@@ -54,3 +54,16 @@ create table if not exists printers (
     created_at timestamp not null default now(),
     updated_at timestamp not null default now()
 );
+
+create table if not exists printer_wallet(
+
+     printer_wallet_id uuid primary key,
+     balance int not null default 0,
+     created_at timestamp not null default now(),
+     updated_at timestamp not null default now(),
+
+     printer_id uuid not null unique,
+
+     constraint fk_printer_wallet_printer_id foreign key (printer_id)
+         references printers(printer_id)
+);
