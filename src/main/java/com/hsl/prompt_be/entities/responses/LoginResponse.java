@@ -14,4 +14,5 @@ public class LoginResponse {
     private boolean isPrinter;
     private boolean isEmailVerified;
     private boolean isEnabled;
+    @Builder.Default private UUID printerId = null;
 }

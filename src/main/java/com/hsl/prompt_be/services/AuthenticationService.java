@@ -44,6 +44,7 @@ public class AuthenticationService {
     private final UserOtpRepository userOtpRepository;
     private final PrinterRepository printerRepository;
     private final PrinterWalletService printerWalletService;
+    private final PrinterService printerService;
 
     public UserResponse signUp(UserRequest userRequest) {
 
@@ -60,7 +61,7 @@ public class AuthenticationService {
         return user.toDto();
     }
 
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) throws PrinthubException {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -71,6 +72,12 @@ public class AuthenticationService {
 
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         String token = jwtService.generateToken(user);
+        UUID printerId = null;
+
+        if (user.isPrinter()) {
+
+            printerId = printerService.getPrinterByUserId(user.getUserId()).get().getPrinterId();
+        }
 
         return LoginResponse.builder()
                 .token(token)
@@ -78,6 +85,7 @@ public class AuthenticationService {
                 .isEmailVerified(user.isEmailVerified())
                 .isEnabled(user.isEnabled())
                 .userId(user.getUserId())
+                .printerId(printerId)
                 .build();
     }
 

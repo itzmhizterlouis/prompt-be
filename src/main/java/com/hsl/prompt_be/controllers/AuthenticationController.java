@@ -37,7 +37,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public LoginResponse login(@RequestBody LoginRequest request) throws PrinthubException {
 
         return authenticationService.login(request);
     }
