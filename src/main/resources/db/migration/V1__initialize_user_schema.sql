@@ -42,7 +42,7 @@ create table if not exists printers (
     uncoloured_rate int not null,
     bank_name varchar(50) not null,
     account_name varchar(50) not null,
-    account_number int not null,
+    account_number bigint not null,
 
     weekday_closing timestamp not null,
     weekday_opening timestamp not null,
