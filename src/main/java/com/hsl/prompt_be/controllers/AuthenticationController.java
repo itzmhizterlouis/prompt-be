@@ -46,7 +46,7 @@ public class AuthenticationController {
     }
 
     @Operation(summary = "generate otp endpoint",description = "unprotected route for generating otp")
-    @PostMapping("generate-otp")
+    @GetMapping("generate-otp")
     public GenericResponse generateOtp() throws PrinthubException {
 
         return authenticationService.sendOtpToMail();
