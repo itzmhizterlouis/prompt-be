@@ -1,6 +1,0 @@
-[pkgs]
-gradle = "gradle"
-jdk = "jdk21" # Example: Replace with the required version
-
-[build]
-cmd = "./gradlew clean build -x test"
