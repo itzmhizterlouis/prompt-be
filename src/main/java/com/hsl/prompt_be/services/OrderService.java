@@ -8,7 +8,9 @@ import com.hsl.prompt_be.entities.requests.OrderRequest;
 import com.hsl.prompt_be.entities.requests.SearchOrderRequest;
 import com.hsl.prompt_be.entities.requests.UpdateOrderRequest;
 import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
+import com.hsl.prompt_be.entities.responses.OrderResponse;
 import com.hsl.prompt_be.exceptions.OrderNotFoundException;
+import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UnauthorizedException;
 import com.hsl.prompt_be.exceptions.UserNotFoundException;
@@ -35,7 +37,7 @@ public class OrderService {
     private final PaymentService paymentService;
     private final UserService userService;
 
-    public Order createOrder(UUID printerId, OrderRequest request) throws PrinthubException {
+    public OrderResponse createOrder(UUID printerId, OrderRequest request) throws PrinthubException {
 
         Order order = Order.builder()
                 .description(request.getDescription())
@@ -60,16 +62,22 @@ public class OrderService {
 
         order.setDocuments(orderDocuments);
 
-        return orderRepository.save(order).toDto();
+        return convertOrderToDto(orderRepository.save(order));
     }
 
-    public List<Order> searchOrders(SearchOrderRequest request) {
+    public List<OrderResponse> searchOrders(SearchOrderRequest request) {
 
         Specification<Order> spec = OrderSpecification.byDynamicCriteria(request.getSpecifications());
-        return orderRepository.findAll(spec).parallelStream().map(Order::toDto).collect(Collectors.toList());
+        return orderRepository.findAll(spec).parallelStream().map(order -> {
+            try {
+                return convertOrderToDto(order);
+            } catch (PrinterNotFoundException | UserNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }).collect(Collectors.toList());
     }
 
-    public Order updateOrder(UUID orderId, UpdateOrderRequest request) throws PrinthubException {
+    public OrderResponse updateOrder(UUID orderId, UpdateOrderRequest request) throws PrinthubException {
 
         Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
         throwErrorIfUserNotInvolvedWithOrder(order);
@@ -80,12 +88,12 @@ public class OrderService {
         order.setCompleted(request.isCompleted());
 
         order.setUpdatedAt(Instant.now());
-        return orderRepository.save(order).toDto();
+        return convertOrderToDto(orderRepository.save(order));
     }
 
-    public Order getOrderById(UUID orderId) throws OrderNotFoundException {
+    public OrderResponse getOrderById(UUID orderId) throws OrderNotFoundException, UserNotFoundException, PrinterNotFoundException {
 
-        return orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new).toDto();
+        return convertOrderToDto(orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new));
     }
 
     public KorapayCheckoutResponse onlineOrderPayment(UUID orderId) throws OrderNotFoundException, UserNotFoundException {
@@ -111,6 +119,14 @@ public class OrderService {
         }
 
         throw new UnauthorizedException("You're not associated with this order");
+    }
+
+    public OrderResponse convertOrderToDto(Order order) throws PrinterNotFoundException, UserNotFoundException {
+
+        User user = userService.findByUserId(order.getCustomerId());
+        Printer printer = printerService.getPrinterById(order.getPrinterId());
+
+        return order.toDto(user.getFirstName() + " " + user.getLastName(), printer.getName());
     }
 
     public void throwErrorIfUserHasNoOrders(UUID printerId) throws PrinthubException {
