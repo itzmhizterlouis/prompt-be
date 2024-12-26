@@ -5,7 +5,6 @@ import com.hsl.prompt_be.entities.requests.SpecificationRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class OrderSpecification {
