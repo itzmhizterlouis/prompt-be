@@ -36,7 +36,7 @@ public class OrderController {
         return orderService.createOrder(printerId, request);
     }
 
-    @Operation(summary = "search order endpoint", description = "can search by any property of the order")
+    @Operation(summary = "search order endpoint", description = "can search by any property of the order. Supported operations are 'like' and 'equal'")
     @PostMapping("search")
     public List<Order> searchOrders(@RequestBody SearchOrderRequest request) {
 

@@ -20,7 +20,7 @@ public class PrinthubControllerAdvice {
                 .message(ex.getMessage())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
-        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
@@ -31,7 +31,7 @@ public class PrinthubControllerAdvice {
                 .message("DATA INTEGRITY VIOLATION. " + ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST).build();
 
-        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UnauthorizedException.class)
