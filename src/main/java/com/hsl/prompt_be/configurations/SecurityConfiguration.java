@@ -41,8 +41,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF
-                .cors(httpSecurityCorsConfigurer -> corsConfigurationSource()
-                )
+                .cors(httpSecurityCorsConfigurer -> corsConfigurationSource())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/authentication/signup", "/authentication/login",
