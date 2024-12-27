@@ -27,7 +27,7 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://localhost:3000", "https://prompt-2-0-preview.vercel.app", "http://prompt-2-0-preview.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
         configuration.setAllowCredentials(true);
