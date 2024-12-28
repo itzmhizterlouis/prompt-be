@@ -46,10 +46,10 @@ public class AuthenticationController {
     }
 
     @Operation(summary = "generate otp endpoint",description = "unprotected route for generating otp")
-    @GetMapping("generate-otp")
-    public GenericResponse generateOtp() throws PrinthubException {
+    @GetMapping("generate-otp/{email}")
+    public GenericResponse generateOtp(@PathVariable String email) throws PrinthubException {
 
-        return authenticationService.sendOtpToMail();
+        return authenticationService.sendOtpToMail(email);
     }
 
     @Operation(summary = "verify otp endpoint")

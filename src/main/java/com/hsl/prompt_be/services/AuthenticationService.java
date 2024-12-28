@@ -152,9 +152,9 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public GenericResponse sendOtpToMail() throws PrinthubException {
+    public GenericResponse sendOtpToMail(String email) throws PrinthubException {
 
-        UserResponse user = getLoggedInUser();
+        User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
         userOtpRepository.deleteByUserId(user.getUserId());
         sendOtpToMail(generateOtp(), user.getEmail(), user.getUserId());
 
