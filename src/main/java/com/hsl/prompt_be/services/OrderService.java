@@ -4,6 +4,7 @@ import com.hsl.prompt_be.entities.models.Order;
 import com.hsl.prompt_be.entities.models.OrderDocument;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.models.User;
+import com.hsl.prompt_be.entities.requests.EmailDetails;
 import com.hsl.prompt_be.entities.requests.OrderRequest;
 import com.hsl.prompt_be.entities.requests.SearchOrderRequest;
 import com.hsl.prompt_be.entities.requests.UpdateOrderRequest;
@@ -22,6 +23,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +39,7 @@ public class OrderService {
     private final PrinterService printerService;
     private final PaymentService paymentService;
     private final UserService userService;
+    private final EmailService emailService;
 
     public OrderResponse createOrder(UUID printerId, OrderRequest request) throws PrinthubException {
 
@@ -61,8 +65,17 @@ public class OrderService {
                             .build()));
 
         order.setDocuments(orderDocuments);
+        OrderResponse orderResponse = convertOrderToDto(orderRepository.save(order));
 
-        return convertOrderToDto(orderRepository.save(order));
+        sendOrderInformationToEmail(
+                orderResponse.getCustomerId(), orderResponse.getPrinterId(), "Print Order Notification",
+                orderResponse.getCustomerName() + " placed an order to be received at "
+                        + convertInstantToHumanReadable(orderResponse.getTimeExpected()),
+                "You placed an order to " + orderResponse.getPrinterName() + " to be received at "
+                        + convertInstantToHumanReadable(orderResponse.getTimeExpected())
+        );
+
+        return orderResponse;
     }
 
     public List<OrderResponse> searchOrders(SearchOrderRequest request) {
@@ -135,5 +148,34 @@ public class OrderService {
 
             throw new UnauthorizedException("You've not made an order to this printer");
         }
+    }
+
+    public String convertInstantToHumanReadable(Instant instantTime) {
+
+        return DateTimeFormatter
+                .ofPattern("MMMM dd, yyyy, hh:mm:ss a")
+                .withZone(ZoneId.of("GMT+1"))
+                .format(instantTime);
+    }
+
+    private void sendOrderInformationToEmail(UUID customerId, UUID printerId, String subject, String printerMessageBody, String userMessageBody) throws UserNotFoundException, PrinterNotFoundException {
+
+        User user = userService.findByUserId(customerId);
+        User printerUser = userService.findByUserId(printerService.getPrinterById(printerId).getUserId());
+
+        // Send email to user
+        emailService.sendSimpleMail(
+                EmailDetails.builder()
+                        .recipient(user.getEmail())
+                        .subject(subject)
+                        .messageBody(userMessageBody).build()
+        );
+        // Send email to printer
+        emailService.sendSimpleMail(
+                EmailDetails.builder()
+                        .recipient(printerUser.getEmail())
+                        .subject(subject)
+                        .messageBody(printerMessageBody).build()
+        );
     }
 }
