@@ -40,7 +40,6 @@ public class Order {
     @Builder.Default private OrderStatus status = OrderStatus.PENDING; // cancelled, complete, invalid, pending
 
     @Builder.Default private boolean paid = false;
-    @Builder.Default private boolean completed = false;
 
     @Builder.Default private Instant createdAt = Instant.now();
     @Builder.Default private Instant timeExpected = Instant.now().plusSeconds(3600);
@@ -62,7 +61,6 @@ public class Order {
                 .paymentType(paymentType)
                 .status(status)
                 .paid(paid)
-                .completed(completed)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .timeExpected(timeExpected)

@@ -1,8 +1,10 @@
 package com.hsl.prompt_be.controllers;
 
+import com.hsl.prompt_be.entities.requests.KorapayWebhookRequest;
 import com.hsl.prompt_be.entities.requests.OrderRequest;
 import com.hsl.prompt_be.entities.requests.SearchOrderRequest;
 import com.hsl.prompt_be.entities.requests.UpdateOrderRequest;
+import com.hsl.prompt_be.entities.responses.AppResponse;
 import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
 import com.hsl.prompt_be.entities.responses.OrderResponse;
 import com.hsl.prompt_be.exceptions.OrderNotFoundException;
@@ -10,6 +12,7 @@ import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UserNotFoundException;
 import com.hsl.prompt_be.services.OrderService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,5 +66,12 @@ public class OrderController {
     public KorapayCheckoutResponse onlineOrderPayment(@PathVariable UUID orderId) throws OrderNotFoundException, UserNotFoundException {
 
         return orderService.onlineOrderPayment(orderId);
+    }
+
+    @Hidden
+    @PostMapping("payments/confirm")
+    public AppResponse successfulPayment(@RequestBody KorapayWebhookRequest request) {
+
+        return orderService.successfulPayment(request);
     }
 }

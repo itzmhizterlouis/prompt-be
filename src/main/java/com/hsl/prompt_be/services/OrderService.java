@@ -2,12 +2,15 @@ package com.hsl.prompt_be.services;
 
 import com.hsl.prompt_be.entities.models.Order;
 import com.hsl.prompt_be.entities.models.OrderDocument;
+import com.hsl.prompt_be.entities.models.Payment;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.requests.EmailDetails;
+import com.hsl.prompt_be.entities.requests.KorapayWebhookRequest;
 import com.hsl.prompt_be.entities.requests.OrderRequest;
 import com.hsl.prompt_be.entities.requests.SearchOrderRequest;
 import com.hsl.prompt_be.entities.requests.UpdateOrderRequest;
+import com.hsl.prompt_be.entities.responses.AppResponse;
 import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
 import com.hsl.prompt_be.entities.responses.OrderResponse;
 import com.hsl.prompt_be.exceptions.OrderNotFoundException;
@@ -20,6 +23,7 @@ import com.hsl.prompt_be.repositories.specifications.OrderSpecification;
 import com.hsl.prompt_be.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -96,9 +100,6 @@ public class OrderService {
         throwErrorIfUserNotInvolvedWithOrder(order);
 
         order.setStatus(request.getStatus());
-        order.setTimeExpected(request.getTimeExpected());
-        order.setPaid(request.isPaid());
-        order.setCompleted(request.isCompleted());
 
         order.setUpdatedAt(Instant.now());
         return convertOrderToDto(orderRepository.save(order));
@@ -115,6 +116,21 @@ public class OrderService {
         User user = userService.findByUserId(order.getCustomerId());
 
         return paymentService.initiateOrderPayment(order, user);
+    }
+
+    public AppResponse successfulPayment(KorapayWebhookRequest request) {
+
+        Payment payment = Payment.builder()
+                .orderId(UUID.fromString(request.getData().getReference()))
+                .status(request.getData().getStatus())
+                .method(request.getData().getPayment_method())
+                .amount(request.getData().getAmount()).build();
+
+        paymentService.savePayment(payment);
+
+        return AppResponse.builder()
+                .message("Payment reference has been successfully saved")
+                .status(HttpStatus.OK).build();
     }
 
     public void throwErrorIfUserNotInvolvedWithOrder(Order order) throws PrinthubException {

@@ -23,7 +23,6 @@ public class OrderResponse {
     private OrderStatus status; // cancelled, complete, invalid, pending
 
     private boolean paid;
-    private boolean completed;
 
     private Instant createdAt;
     private Instant timeExpected;
