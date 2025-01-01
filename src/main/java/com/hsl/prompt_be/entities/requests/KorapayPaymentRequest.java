@@ -13,5 +13,6 @@ public class KorapayPaymentRequest {
     private String currency;
     private String reference;
     private String narration;
+    private String notification_url;
     private CustomerDetails customer;
 }

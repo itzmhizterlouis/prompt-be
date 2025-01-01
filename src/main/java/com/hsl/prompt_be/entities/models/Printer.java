@@ -34,7 +34,7 @@ public class Printer {
     private int uncolouredRate;
     private String bankName;
     private String accountName;
-    private int accountNumber;
+    private long accountNumber;
 
     private UUID userId;
 

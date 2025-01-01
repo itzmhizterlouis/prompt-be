@@ -60,6 +60,11 @@ public class PrinterService {
 
     public Optional<Printer> getLoggedInPrinter() throws PrinthubException {
 
-        return printerRepository.findById(UserUtil.getLoggedInUser().getUserId());
+        return getPrinterByUserId(UserUtil.getLoggedInUser().getUserId());
+    }
+
+    public Optional<Printer> getPrinterByUserId(UUID userId) {
+
+        return printerRepository.findByUserId(userId);
     }
 }

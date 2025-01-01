@@ -2,9 +2,11 @@ package com.hsl.prompt_be.services;
 
 import com.hsl.prompt_be.entities.models.CustomerDetails;
 import com.hsl.prompt_be.entities.models.Order;
+import com.hsl.prompt_be.entities.models.Payment;
 import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.requests.KorapayPaymentRequest;
 import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
+import com.hsl.prompt_be.repositories.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -24,7 +26,11 @@ public class PaymentService {
     @Value("${korapay.api.key.secret}")
     private String apiSecretKey;
 
+    @Value("${korapay.checkout.notification_url}")
+    private String notificationUrl;
+
     private final RestTemplate restTemplate;
+    private final PaymentRepository paymentRepository;
 
     public KorapayCheckoutResponse callKorapayPayoutApi(KorapayPaymentRequest requestBody) {
 
@@ -47,6 +53,7 @@ public class PaymentService {
         KorapayPaymentRequest request = KorapayPaymentRequest.builder()
                 .amount((int)order.getCharge())
                 .redirect_url("https://web.facebook.com/marvel.lous.963/")
+                .notification_url(notificationUrl)
                 .currency("NGN")
                 .reference(order.getOrderId().toString())
                 .narration("Order for " + user.getEmail())
@@ -57,5 +64,10 @@ public class PaymentService {
                 ).build();
 
         return callKorapayPayoutApi(request);
+    }
+
+    public Payment savePayment(Payment payment) {
+
+        return paymentRepository.save(payment);
     }
 }

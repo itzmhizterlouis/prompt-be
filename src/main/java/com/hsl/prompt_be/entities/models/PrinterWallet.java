@@ -26,6 +26,6 @@ public class PrinterWallet {
 
     private UUID printerId;
 
-    private Instant createdAt;
-    private Instant updatedAt;
+    @Builder.Default private Instant createdAt = Instant.now();
+    @Builder.Default private Instant updatedAt = Instant.now();
 }

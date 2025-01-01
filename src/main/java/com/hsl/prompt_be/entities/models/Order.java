@@ -1,6 +1,7 @@
 package com.hsl.prompt_be.entities.models;
 
 
+import com.hsl.prompt_be.entities.responses.OrderResponse;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -38,7 +40,6 @@ public class Order {
     @Builder.Default private OrderStatus status = OrderStatus.PENDING; // cancelled, complete, invalid, pending
 
     @Builder.Default private boolean paid = false;
-    @Builder.Default private boolean completed = false;
 
     @Builder.Default private Instant createdAt = Instant.now();
     @Builder.Default private Instant timeExpected = Instant.now().plusSeconds(3600);
@@ -50,9 +51,23 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<OrderDocument> documents;
 
-    public Order toDto(){
+    public OrderResponse toDto(String customerName, String printerName){
 
-        documents.parallelStream().forEach(OrderDocument::toListResponse);
-        return this;
+        return OrderResponse.builder()
+                .documents(documents.parallelStream().map(OrderDocument::toListResponse).collect(Collectors.toList()))
+                .orderId(orderId)
+                .description(description)
+                .charge(charge)
+                .paymentType(paymentType)
+                .status(status)
+                .paid(paid)
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
+                .timeExpected(timeExpected)
+                .customerId(customerId)
+                .printerId(printerId)
+                .customerName(customerName)
+                .printerName(printerName)
+                .build();
     }
 }

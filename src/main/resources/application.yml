@@ -45,6 +45,7 @@ server:
 korapay:
   checkout:
     url: ${KORAPAY_PAYOUT_URL}
+    notification_url: ${KORAPAY_NOTIFICATION_URL}
   api:
     key:
       secret: ${KORAPAY_API_SECRET}
