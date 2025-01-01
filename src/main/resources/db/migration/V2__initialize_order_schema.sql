@@ -6,7 +6,6 @@ create table if not exists orders (
     status varchar(50) not null,
     charge int not null,
     paid boolean not null default false,
-    completed boolean not null default false,
 
     customer_id uuid not null,
     printer_id uuid not null,
@@ -25,7 +24,7 @@ create table if not exists order_documents(
 
     order_document_id uuid primary key,
     name varchar(50) not null,
-    uri varchar(50) not null,
+    uri varchar not null,
     copies int not null default 1,
     pages int not null default 1,
     coloured boolean not null default false,

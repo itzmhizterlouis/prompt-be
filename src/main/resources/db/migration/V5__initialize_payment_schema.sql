@@ -10,6 +10,3 @@ create table if not exists payments (
     constraint fk_payments_order_id foreign key (order_id)
                                     references orders(order_id)
 );
-
-alter table orders
-    drop column completed;
