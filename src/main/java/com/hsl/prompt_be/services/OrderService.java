@@ -103,7 +103,15 @@ public class OrderService {
         order.setStatus(request.getStatus());
 
         order.setUpdatedAt(Instant.now());
-        return convertOrderToDto(orderRepository.save(order));
+        OrderResponse response = convertOrderToDto(orderRepository.save(order));
+
+        sendOrderInformationToEmail(
+                response.getCustomerId(), response.getPrinterId(), "Printhub Order Update",
+                null,
+                "Your order status is now " + response.getStatus()
+        );
+
+        return response;
     }
 
     public OrderResponse getOrderById(UUID orderId) throws OrderNotFoundException, UserNotFoundException, PrinterNotFoundException {
@@ -186,19 +194,23 @@ public class OrderService {
         User user = userService.findByUserId(customerId);
         User printerUser = userService.findByUserId(printerService.getPrinterById(printerId).getUserId());
 
-        // Send email to user
-        emailService.sendSimpleMail(
-                EmailDetails.builder()
-                        .recipient(user.getEmail())
-                        .subject(subject)
-                        .messageBody(userMessageBody).build()
-        );
-        // Send email to printer
-        emailService.sendSimpleMail(
-                EmailDetails.builder()
-                        .recipient(printerUser.getEmail())
-                        .subject(subject)
-                        .messageBody(printerMessageBody).build()
-        );
+        if (userMessageBody != null) {
+            // Send email to user
+            emailService.sendSimpleMail(
+                    EmailDetails.builder()
+                            .recipient(user.getEmail())
+                            .subject(subject)
+                            .messageBody(userMessageBody).build()
+            );
+        }
+        if (printerMessageBody != null) {
+            // Send email to printer
+            emailService.sendSimpleMail(
+                    EmailDetails.builder()
+                            .recipient(printerUser.getEmail())
+                            .subject(subject)
+                            .messageBody(printerMessageBody).build()
+            );
+        }
     }
 }
