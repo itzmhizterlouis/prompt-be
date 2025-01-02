@@ -46,7 +46,7 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/authentication/signup", "/authentication/login", "authentication/generate-otp",
                                 "/authentication/verify-otp", "authentication/{userId}/printers",
-                                "/swagger-ui/**", "/v3/api-docs/**"
+                                "/swagger-ui/**", "/v3/api-docs/**", "/orders/payments/confirm"
                         ).permitAll() // Allow access to "/auth/**"
                         .anyRequest().authenticated() // Require authentication for all other requests
                 )

@@ -21,6 +21,7 @@ import com.hsl.prompt_be.exceptions.UserNotFoundException;
 import com.hsl.prompt_be.repositories.OrderRepository;
 import com.hsl.prompt_be.repositories.specifications.OrderSpecification;
 import com.hsl.prompt_be.utils.UserUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -118,7 +119,8 @@ public class OrderService {
         return paymentService.initiateOrderPayment(order, user);
     }
 
-    public AppResponse successfulPayment(KorapayWebhookRequest request) {
+    @Transactional
+    public AppResponse successfulPayment(KorapayWebhookRequest request) throws OrderNotFoundException, UserNotFoundException, PrinterNotFoundException {
 
         Payment payment = Payment.builder()
                 .orderId(UUID.fromString(request.getData().getReference()))
@@ -126,6 +128,9 @@ public class OrderService {
                 .method(request.getData().getPayment_method())
                 .amount(request.getData().getAmount()).build();
 
+        Order order = orderRepository.findById(UUID.fromString(request.getData().getReference())).orElseThrow(OrderNotFoundException::new);
+
+        orderRepository.save(order);
         paymentService.savePayment(payment);
 
         return AppResponse.builder()

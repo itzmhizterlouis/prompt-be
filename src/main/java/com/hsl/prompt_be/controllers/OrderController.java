@@ -70,7 +70,7 @@ public class OrderController {
 
     @Hidden
     @PostMapping("payments/confirm")
-    public AppResponse successfulPayment(@RequestBody KorapayWebhookRequest request) {
+    public AppResponse successfulPayment(@RequestBody KorapayWebhookRequest request) throws OrderNotFoundException, UserNotFoundException, PrinterNotFoundException {
 
         return orderService.successfulPayment(request);
     }
