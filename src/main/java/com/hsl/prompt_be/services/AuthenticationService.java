@@ -46,6 +46,7 @@ public class AuthenticationService {
     private final PrinterWalletService printerWalletService;
     private final PrinterService printerService;
 
+    @Transactional
     public UserResponse signUp(UserRequest userRequest) {
 
         User user = User.builder()

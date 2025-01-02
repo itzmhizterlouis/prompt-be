@@ -29,7 +29,7 @@ public class PaymentService {
     @Value("${korapay.checkout.notification_url}")
     private String notificationUrl;
 
-    @Value("{korapay.checkout.success_callback_url}")
+    @Value("${korapay.checkout.success_callback_url}")
     private String successCallbackUrl;
 
     private final RestTemplate restTemplate;

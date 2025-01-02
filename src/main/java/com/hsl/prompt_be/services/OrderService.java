@@ -15,6 +15,7 @@ import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
 import com.hsl.prompt_be.entities.responses.OrderResponse;
 import com.hsl.prompt_be.exceptions.OrderNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
+import com.hsl.prompt_be.exceptions.PrinterWalletNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UnauthorizedException;
 import com.hsl.prompt_be.exceptions.UserNotFoundException;
@@ -43,6 +44,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final PrinterService printerService;
     private final PaymentService paymentService;
+    private final PrinterWalletService printerWalletService;
     private final UserService userService;
     private final EmailService emailService;
 
@@ -128,7 +130,7 @@ public class OrderService {
     }
 
     @Transactional
-    public AppResponse successfulPayment(KorapayWebhookRequest request) throws OrderNotFoundException, UserNotFoundException, PrinterNotFoundException {
+    public AppResponse successfulPayment(KorapayWebhookRequest request) throws OrderNotFoundException, PrinterWalletNotFoundException {
 
         Payment payment = Payment.builder()
                 .orderId(UUID.fromString(request.getData().getReference()))
@@ -140,6 +142,7 @@ public class OrderService {
         order.setPaid(true);
         order.setUpdatedAt(Instant.now());
 
+        printerWalletService.addAmountToPrinterWallet(order.getPrinterId(), order.getCharge());
         orderRepository.save(order);
         paymentService.savePayment(payment);
 
