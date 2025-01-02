@@ -3,6 +3,7 @@ package com.hsl.prompt_be.controllers;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
+import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.services.PrinterService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class PrinterController {
 
     @Operation(summary = "update printer endpoint")
     @PutMapping("{printerId}")
-    public Printer updatePrinter(@PathVariable UUID printerId, @RequestBody PrinterRequest request) throws PrinterNotFoundException {
+    public Printer updatePrinter(@PathVariable UUID printerId, @RequestBody PrinterRequest request) throws PrinthubException {
 
         return printerService.updatePrinter(printerId, request);
     }

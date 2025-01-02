@@ -1,9 +1,11 @@
 package com.hsl.prompt_be.services;
 
 import com.hsl.prompt_be.entities.models.Printer;
+import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
+import com.hsl.prompt_be.exceptions.UnauthorizedException;
 import com.hsl.prompt_be.repositories.PrinterRepository;
 import com.hsl.prompt_be.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +39,9 @@ public class PrinterService {
                 .parallelStream().map(Printer::toDto).collect(Collectors.toList());
     }
 
-    public Printer updatePrinter(UUID printerId, PrinterRequest request) throws PrinterNotFoundException {
+    public Printer updatePrinter(UUID printerId, PrinterRequest request) throws PrinthubException {
+
+        throwErrorIfLoggedInUserIsNotPrinterId(printerId);
 
         Printer printer = printerRepository.findById(printerId).orElseThrow(PrinterNotFoundException::new);
 
@@ -66,5 +70,15 @@ public class PrinterService {
     public Optional<Printer> getPrinterByUserId(UUID userId) {
 
         return printerRepository.findByUserId(userId);
+    }
+
+    public void throwErrorIfLoggedInUserIsNotPrinterId(UUID printerId) throws PrinthubException {
+
+        User user = UserUtil.getLoggedInUser();
+        Printer printer = getPrinterByUserId(user.getUserId()).get();
+
+        if (printer.getPrinterId() != printerId) {
+            throw new UnauthorizedException("You're not the owner of this account");
+        }
     }
 }
