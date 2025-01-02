@@ -129,6 +129,8 @@ public class OrderService {
                 .amount(request.getData().getAmount()).build();
 
         Order order = orderRepository.findById(UUID.fromString(request.getData().getReference())).orElseThrow(OrderNotFoundException::new);
+        order.setPaid(true);
+        order.setUpdatedAt(Instant.now());
 
         orderRepository.save(order);
         paymentService.savePayment(payment);
