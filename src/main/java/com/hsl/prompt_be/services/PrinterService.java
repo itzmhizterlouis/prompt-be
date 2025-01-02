@@ -74,8 +74,9 @@ public class PrinterService {
 
     public void throwErrorIfLoggedInUserIsNotPrinterId(UUID printerId) throws PrinthubException {
 
-        User user = UserUtil.getLoggedInUser();
-        Printer printer = getPrinterByUserId(user.getUserId()).get();
+        Printer printer = getPrinterByUserId(UserUtil.getLoggedInUser().getUserId()).get();
+
+        System.out.println("Printer ID is" + printer.getPrinterId().toString());
 
         if (printer.getPrinterId() != printerId) {
             throw new UnauthorizedException("You're not the owner of this account");
