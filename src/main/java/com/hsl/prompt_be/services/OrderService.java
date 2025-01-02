@@ -3,6 +3,7 @@ package com.hsl.prompt_be.services;
 import com.hsl.prompt_be.entities.models.Order;
 import com.hsl.prompt_be.entities.models.OrderDocument;
 import com.hsl.prompt_be.entities.models.Payment;
+import com.hsl.prompt_be.entities.models.PaymentStatus;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.requests.EmailDetails;
@@ -142,8 +143,12 @@ public class OrderService {
         order.setPaid(true);
         order.setUpdatedAt(Instant.now());
 
-        printerWalletService.addAmountToPrinterWallet(order.getPrinterId(), order.getCharge());
-        orderRepository.save(order);
+        if (request.getData().getStatus().equals(PaymentStatus.success)) {
+
+            printerWalletService.addAmountToPrinterWallet(order.getPrinterId(), order.getCharge());
+            orderRepository.save(order);
+        }
+
         paymentService.savePayment(payment);
 
         return AppResponse.builder()
