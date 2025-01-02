@@ -1,5 +1,6 @@
 package com.hsl.prompt_be.services;
 
+import com.hsl.prompt_be.entities.models.OpenStatus;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
@@ -57,8 +58,19 @@ public class PrinterService {
         printer.setWeekdayOpening(request.getWeekdayOpening());
         printer.setWeekendClosing(request.getWeekendClosing());
         printer.setWeekendOpening(request.getWeekendOpening());
+
         printer.setUpdatedAt(Instant.now());
 
+        return printerRepository.save(printer).toDto();
+    }
+
+    public Printer updatePrinterOpenStatus(UUID printerId, OpenStatus open) throws PrinthubException {
+
+        throwErrorIfLoggedInUserIsNotPrinterId(printerId);
+
+        Printer printer = printerRepository.findById(printerId).orElseThrow(PrinterNotFoundException::new);
+        printer.setOpen(open);
+        printer.setUpdatedAt(Instant.now());
         return printerRepository.save(printer).toDto();
     }
 
@@ -76,7 +88,7 @@ public class PrinterService {
 
         Printer printer = getPrinterByUserId(UserUtil.getLoggedInUser().getUserId()).get();
 
-        if (printer.getPrinterId().equals(printerId)) {
+        if (!printer.getPrinterId().equals(printerId)) {
             throw new UnauthorizedException("You're not the owner of this account");
         }
     }

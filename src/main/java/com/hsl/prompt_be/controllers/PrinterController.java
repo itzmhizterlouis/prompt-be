@@ -2,6 +2,7 @@ package com.hsl.prompt_be.controllers;
 
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
+import com.hsl.prompt_be.entities.requests.UpdateOpenStatusRequest;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.services.PrinterService;
@@ -50,5 +51,12 @@ public class PrinterController {
     public Printer updatePrinter(@PathVariable UUID printerId, @RequestBody PrinterRequest request) throws PrinthubException {
 
         return printerService.updatePrinter(printerId, request);
+    }
+
+    @Operation(summary = "Seperate endpoint for updating open status")
+    @PutMapping("{printerId}/update/open_status")
+    public Printer updatePrinterOpenStatus(@PathVariable UUID printerId, @RequestBody UpdateOpenStatusRequest request) throws PrinthubException {
+
+        return printerService.updatePrinterOpenStatus(printerId, request.getOpen());
     }
 }

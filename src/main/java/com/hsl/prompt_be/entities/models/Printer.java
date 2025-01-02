@@ -2,6 +2,8 @@ package com.hsl.prompt_be.entities.models;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -35,6 +37,9 @@ public class Printer {
     private String bankName;
     private String accountName;
     private long accountNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default private OpenStatus open = OpenStatus.NIL;
 
     private UUID userId;
 

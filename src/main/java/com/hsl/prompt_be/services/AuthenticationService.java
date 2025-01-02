@@ -1,5 +1,6 @@
 package com.hsl.prompt_be.services;
 
+import com.hsl.prompt_be.entities.models.OpenStatus;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.models.PrinterWallet;
 import com.hsl.prompt_be.entities.models.User;
@@ -136,6 +137,7 @@ public class AuthenticationService {
                 .weekendOpening(request.getWeekendOpening())
                 .weekdayOpening(request.getWeekdayOpening())
                 .weekendClosing(request.getWeekendClosing())
+                .open(OpenStatus.NIL)
                 .build();
 
         PrinterWallet printerWallet = PrinterWallet.builder()
