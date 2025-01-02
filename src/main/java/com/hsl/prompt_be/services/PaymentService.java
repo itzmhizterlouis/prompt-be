@@ -29,6 +29,9 @@ public class PaymentService {
     @Value("${korapay.checkout.notification_url}")
     private String notificationUrl;
 
+    @Value("{korapay.checkout.success_callback_url}")
+    private String successCallbackUrl;
+
     private final RestTemplate restTemplate;
     private final PaymentRepository paymentRepository;
 
@@ -51,8 +54,8 @@ public class PaymentService {
     public KorapayCheckoutResponse initiateOrderPayment(Order order, User user) {
 
         KorapayPaymentRequest request = KorapayPaymentRequest.builder()
-                .amount((int)order.getCharge())
-                .redirect_url("https://web.facebook.com/marvel.lous.963/")
+                .amount(order.getCharge())
+                .redirect_url(successCallbackUrl)
                 .notification_url(notificationUrl)
                 .currency("NGN")
                 .reference(order.getOrderId().toString())
