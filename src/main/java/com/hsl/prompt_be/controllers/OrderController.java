@@ -8,6 +8,7 @@ import com.hsl.prompt_be.entities.responses.AppResponse;
 import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
 import com.hsl.prompt_be.entities.responses.OrderResponse;
 import com.hsl.prompt_be.exceptions.OrderNotFoundException;
+import com.hsl.prompt_be.exceptions.PaymentNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinterWalletNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
@@ -71,7 +72,7 @@ public class OrderController {
 
     @Hidden
     @PostMapping("payments/confirm")
-    public AppResponse successfulPayment(@RequestBody KorapayWebhookRequest request) throws OrderNotFoundException, PrinterWalletNotFoundException {
+    public AppResponse successfulPayment(@RequestBody KorapayWebhookRequest request) throws OrderNotFoundException, PrinterWalletNotFoundException, PaymentNotFoundException {
 
         return orderService.successfulPayment(request);
     }

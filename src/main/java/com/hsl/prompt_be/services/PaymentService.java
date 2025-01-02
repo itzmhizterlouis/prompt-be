@@ -6,6 +6,7 @@ import com.hsl.prompt_be.entities.models.Payment;
 import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.requests.KorapayPaymentRequest;
 import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
+import com.hsl.prompt_be.exceptions.PaymentNotFoundException;
 import com.hsl.prompt_be.repositories.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -51,14 +54,14 @@ public class PaymentService {
         return response.getBody();
     }
 
-    public KorapayCheckoutResponse initiateOrderPayment(Order order, User user) {
+    public KorapayCheckoutResponse initiateOrderPayment(UUID paymentId, Order order, User user) {
 
         KorapayPaymentRequest request = KorapayPaymentRequest.builder()
                 .amount(order.getCharge())
                 .redirect_url(successCallbackUrl)
                 .notification_url(notificationUrl)
                 .currency("NGN")
-                .reference(order.getOrderId().toString())
+                .reference(paymentId.toString())
                 .narration("Order for " + user.getEmail())
                 .customer(
                         CustomerDetails.builder()
@@ -72,5 +75,10 @@ public class PaymentService {
     public Payment savePayment(Payment payment) {
 
         return paymentRepository.save(payment);
+    }
+
+    public Payment findById(UUID paymentId) throws PaymentNotFoundException {
+
+        return paymentRepository.findById(paymentId).orElseThrow(PaymentNotFoundException::new);
     }
 }

@@ -3,6 +3,7 @@ package com.hsl.prompt_be.services;
 import com.hsl.prompt_be.entities.models.Order;
 import com.hsl.prompt_be.entities.models.OrderDocument;
 import com.hsl.prompt_be.entities.models.Payment;
+import com.hsl.prompt_be.entities.models.PaymentMethod;
 import com.hsl.prompt_be.entities.models.PaymentStatus;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.models.User;
@@ -15,6 +16,7 @@ import com.hsl.prompt_be.entities.responses.AppResponse;
 import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
 import com.hsl.prompt_be.entities.responses.OrderResponse;
 import com.hsl.prompt_be.exceptions.OrderNotFoundException;
+import com.hsl.prompt_be.exceptions.PaymentNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinterWalletNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
@@ -122,24 +124,39 @@ public class OrderService {
         return convertOrderToDto(orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new));
     }
 
+    @Transactional
     public KorapayCheckoutResponse onlineOrderPayment(UUID orderId) throws OrderNotFoundException, UserNotFoundException {
 
         Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
         User user = userService.findByUserId(order.getCustomerId());
 
-        return paymentService.initiateOrderPayment(order, user);
+        Payment payment = Payment.builder()
+                .status(PaymentStatus.pending)
+                .method(PaymentMethod.nil)
+                .amount(order.getCharge())
+                .orderId(orderId)
+                .amount(order.getCharge()).build();
+
+        paymentService.savePayment(payment);
+
+        return paymentService.initiateOrderPayment(payment.getPaymentId(), order, user);
     }
 
     @Transactional
-    public AppResponse successfulPayment(KorapayWebhookRequest request) throws OrderNotFoundException, PrinterWalletNotFoundException {
+    public AppResponse successfulPayment(KorapayWebhookRequest request) throws OrderNotFoundException, PrinterWalletNotFoundException, PaymentNotFoundException {
 
-        Payment payment = Payment.builder()
-                .orderId(UUID.fromString(request.getData().getReference()))
-                .status(request.getData().getStatus())
-                .method(request.getData().getPayment_method())
-                .amount(request.getData().getAmount()).build();
+        Payment payment = paymentService.findById(UUID.fromString(request.getData().getReference()));
+        payment.setStatus(request.getData().getStatus());
 
-        Order order = orderRepository.findById(UUID.fromString(request.getData().getReference())).orElseThrow(OrderNotFoundException::new);
+        if (payment.getMethod().equals(PaymentMethod.nil)) {
+
+            payment.setMethod(request.getData().getPayment_method());
+            payment.setUpdatedAt(Instant.now());
+        }
+
+        paymentService.savePayment(payment);
+
+        Order order = orderRepository.findById(payment.getOrderId()).orElseThrow(OrderNotFoundException::new);
         order.setPaid(true);
         order.setUpdatedAt(Instant.now());
 
@@ -148,8 +165,6 @@ public class OrderService {
             printerWalletService.addAmountToPrinterWallet(order.getPrinterId(), order.getCharge());
             orderRepository.save(order);
         }
-
-        paymentService.savePayment(payment);
 
         return AppResponse.builder()
                 .message("Payment reference has been successfully saved")

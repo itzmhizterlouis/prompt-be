@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -31,4 +32,7 @@ public class Payment {
     private int amount;
 
     private UUID orderId;
+
+    @Builder.Default private Instant createdAt = Instant.now();
+    @Builder.Default private Instant updatedAt = Instant.now();
 }
