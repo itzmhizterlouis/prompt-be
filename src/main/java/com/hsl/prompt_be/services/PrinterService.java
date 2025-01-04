@@ -2,7 +2,6 @@ package com.hsl.prompt_be.services;
 
 import com.hsl.prompt_be.entities.models.OpenStatus;
 import com.hsl.prompt_be.entities.models.Printer;
-import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
