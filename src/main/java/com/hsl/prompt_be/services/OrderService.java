@@ -18,7 +18,7 @@ import com.hsl.prompt_be.entities.responses.OrderResponse;
 import com.hsl.prompt_be.exceptions.OrderNotFoundException;
 import com.hsl.prompt_be.exceptions.PaymentNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
-import com.hsl.prompt_be.exceptions.PrinterWalletNotFoundException;
+import com.hsl.prompt_be.exceptions.UserWalletNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UnauthorizedException;
 import com.hsl.prompt_be.exceptions.UserNotFoundException;
@@ -47,7 +47,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final PrinterService printerService;
     private final PaymentService paymentService;
-    private final PrinterWalletService printerWalletService;
+    private final UserWalletService userWalletService;
     private final UserService userService;
     private final EmailService emailService;
 
@@ -143,7 +143,7 @@ public class OrderService {
     }
 
     @Transactional
-    public AppResponse successfulPayment(KorapayWebhookRequest request) throws OrderNotFoundException, PrinterWalletNotFoundException, PaymentNotFoundException {
+    public AppResponse successfulPayment(KorapayWebhookRequest request) throws OrderNotFoundException, UserWalletNotFoundException, PaymentNotFoundException, PrinterNotFoundException, UserNotFoundException {
 
         Payment payment = paymentService.findById(UUID.fromString(request.getData().getReference()));
         payment.setStatus(request.getData().getStatus());
@@ -162,7 +162,9 @@ public class OrderService {
 
         if (request.getData().getStatus().equals(PaymentStatus.success)) {
 
-            printerWalletService.addAmountToPrinterWallet(order.getPrinterId(), order.getCharge());
+            User printerUser = userService.findByUserId(printerService.getPrinterById(order.getPrinterId()).getUserId());
+
+            userWalletService.addAmountToPrinterWallet(printerUser.getUserId(), order.getCharge());
             orderRepository.save(order);
         }
 

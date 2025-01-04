@@ -2,7 +2,7 @@ package com.hsl.prompt_be.services;
 
 import com.hsl.prompt_be.entities.models.OpenStatus;
 import com.hsl.prompt_be.entities.models.Printer;
-import com.hsl.prompt_be.entities.models.PrinterWallet;
+import com.hsl.prompt_be.entities.models.UserWallet;
 import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.models.UserOtp;
 import com.hsl.prompt_be.entities.requests.EmailDetails;
@@ -44,7 +44,7 @@ public class AuthenticationService {
     private final EmailService emailService;
     private final UserOtpRepository userOtpRepository;
     private final PrinterRepository printerRepository;
-    private final PrinterWalletService printerWalletService;
+    private final UserWalletService userWalletService;
     private final PrinterService printerService;
 
     @Transactional
@@ -58,6 +58,10 @@ public class AuthenticationService {
                 .build();
 
         userRepository.save(user).toDto();
+        UserWallet userWallet = UserWallet.builder()
+                .userId(user.getUserId()).build();
+        userWalletService.save(userWallet);
+
         sendOtpToMail(generateOtp(), user.getEmail(), user.getUserId());
 
         return user.toDto();
@@ -140,15 +144,11 @@ public class AuthenticationService {
                 .open(OpenStatus.NIL)
                 .build();
 
-        PrinterWallet printerWallet = PrinterWallet.builder()
-                .printerId(printer.getPrinterId()).build();
-
         User user = userRepository.findByUserId(userId).orElseThrow(UserNotFoundException::new);
         user.setPrinter(true);
         user.setUpdatedAt(Instant.now());
 
         printerRepository.save(printer);
-        printerWalletService.save(printerWallet);
         userRepository.save(user);
 
         return printer;

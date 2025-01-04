@@ -16,15 +16,13 @@ import java.util.UUID;
 @Data
 @Builder
 @Entity
-@Table(name = "printer_wallet")
-public class PrinterWallet {
+@Table(name = "user_wallets")
+public class UserWallet {
 
     @Id
-    @Builder.Default UUID printerWalletId = UUID.randomUUID();
+    private UUID userId;
 
     @Builder.Default private int balance = 0;
-
-    private UUID printerId;
 
     @Builder.Default private Instant createdAt = Instant.now();
     @Builder.Default private Instant updatedAt = Instant.now();
