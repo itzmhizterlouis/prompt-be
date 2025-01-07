@@ -32,13 +32,14 @@ public class UserWalletController {
     private final UserWalletService userWalletService;
     private final PaymentService paymentService;
 
-    @Operation(summary = "Get Logged in user wallet")
+    @Operation(summary = "Get Logged in user wallet details")
     @GetMapping
     public UserWallet getLoggedInUserWallet() throws PrinthubException {
 
         return userWalletService.getLoggedInUserWallet();
     }
 
+    @Operation(summary = "Endpoint for initiating user wallet deposit")
     @PostMapping("initiate/deposit")
     public KorapayCheckoutResponse initiateDeposit(@RequestBody WalletDepositRequest request) throws PrinthubException {
 
@@ -52,12 +53,14 @@ public class UserWalletController {
         return userWalletService.depositWebhook(request);
     }
 
+    @Operation(summary = "Get Payment Details by Payment Id")
     @GetMapping("payment/{paymentId}")
     public Payment getPaymentById(@PathVariable UUID paymentId) throws PaymentNotFoundException {
 
         return paymentService.findPaymentById(paymentId);
     }
 
+    @Operation(summary = "Endpoint for paying for order with user wallet balance")
     @PostMapping("pay/{orderId}")
     public AppResponse payForOrderWithWallet(@PathVariable UUID orderId) throws PrinthubException {
 
