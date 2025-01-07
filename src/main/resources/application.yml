@@ -47,6 +47,8 @@ korapay:
     url: ${KORAPAY_PAYOUT_URL}
     notification_url: ${KORAPAY_NOTIFICATION_URL}
     success_callback_url: ${KORAPAY_SUCCESS_URL}
+    deposit_success_callback_url: ${KORAPAY_DEPOSIT_SUCCESS_URL}
+    deposit_notification_url: ${KORAPAY_DEPOSIT_NOTIFICATION_URL}
   api:
     key:
       secret: ${KORAPAY_API_SECRET}
