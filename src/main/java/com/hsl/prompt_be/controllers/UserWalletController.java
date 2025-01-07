@@ -10,6 +10,7 @@ import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UserNotFoundException;
 import com.hsl.prompt_be.exceptions.UserWalletNotFoundException;
 import com.hsl.prompt_be.services.UserWalletService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +39,7 @@ public class UserWalletController {
         return userWalletService.initiateDeposit(request.getAmount());
     }
 
+    @Hidden
     @PostMapping("verify/deposit")
     public AppResponse depositWebhook(@RequestBody KorapayWebhookRequest request) throws PaymentNotFoundException, UserNotFoundException, UserWalletNotFoundException {
 

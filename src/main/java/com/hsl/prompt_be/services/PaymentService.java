@@ -83,7 +83,7 @@ public class PaymentService {
         }
         else {
 
-            request.setRedirect_url(depositSuccessCallbackUrl);
+            request.setRedirect_url(depositSuccessCallbackUrl + "/" + paymentId);
             request.setNotification_url(depositNotificationUrl);
             request.setNarration("Order for " + user.getEmail());
         }
