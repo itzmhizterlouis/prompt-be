@@ -1,12 +1,14 @@
 package com.hsl.prompt_be.services;
 
 import com.hsl.prompt_be.entities.models.CustomerDetails;
-import com.hsl.prompt_be.entities.models.Order;
+import com.hsl.prompt_be.entities.models.OrderPayment;
 import com.hsl.prompt_be.entities.models.Payment;
+import com.hsl.prompt_be.entities.models.PaymentRequestType;
 import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.requests.KorapayPaymentRequest;
 import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
 import com.hsl.prompt_be.exceptions.PaymentNotFoundException;
+import com.hsl.prompt_be.repositories.OrderPaymentRepository;
 import com.hsl.prompt_be.repositories.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,12 +32,19 @@ public class PaymentService {
     private String apiSecretKey;
 
     @Value("${korapay.checkout.notification_url}")
-    private String notificationUrl;
+    private String orderNotificationUrl;
 
     @Value("${korapay.checkout.success_callback_url}")
-    private String successCallbackUrl;
+    private String orderSuccessCallbackUrl;
+
+    @Value("${korapay.checkout.deposit_success_callback_url}")
+    private String depositSuccessCallbackUrl;
+
+    @Value("${korapay.checkout.deposit_notification_url}")
+    private String depositNotificationUrl;
 
     private final RestTemplate restTemplate;
+    private final OrderPaymentRepository orderPaymentRepository;
     private final PaymentRepository paymentRepository;
 
     public KorapayCheckoutResponse callKorapayPayoutApi(KorapayPaymentRequest requestBody) {
@@ -54,22 +63,37 @@ public class PaymentService {
         return response.getBody();
     }
 
-    public KorapayCheckoutResponse initiateOrderPayment(UUID paymentId, Order order, User user) {
+    public KorapayCheckoutResponse initiatePayment(UUID paymentId, int amount, User user, PaymentRequestType paymentType) {
 
         KorapayPaymentRequest request = KorapayPaymentRequest.builder()
-                .amount(order.getCharge())
-                .redirect_url(successCallbackUrl)
-                .notification_url(notificationUrl)
+                .amount(amount)
                 .currency("NGN")
                 .reference(paymentId.toString())
-                .narration("Order for " + user.getEmail())
                 .customer(
                         CustomerDetails.builder()
                                 .email(user.getEmail())
                                 .name(user.getFirstName() + user.getLastName()).build()
                 ).build();
 
+        if (paymentType.equals(PaymentRequestType.ORDER_PAYMENT)) {
+
+            request.setRedirect_url(orderSuccessCallbackUrl);
+            request.setNotification_url(orderNotificationUrl);
+            request.setNarration("Order for " + user.getEmail());
+        }
+        else {
+
+            request.setRedirect_url(depositSuccessCallbackUrl);
+            request.setNotification_url(depositNotificationUrl);
+            request.setNarration("Order for " + user.getEmail());
+        }
+
         return callKorapayPayoutApi(request);
+    }
+
+    public OrderPayment saveOrderPayment(OrderPayment payment) {
+
+        return orderPaymentRepository.save(payment);
     }
 
     public Payment savePayment(Payment payment) {
@@ -77,8 +101,13 @@ public class PaymentService {
         return paymentRepository.save(payment);
     }
 
-    public Payment findById(UUID paymentId) throws PaymentNotFoundException {
+    public Payment findPaymentById(UUID paymentId) throws PaymentNotFoundException {
 
         return paymentRepository.findById(paymentId).orElseThrow(PaymentNotFoundException::new);
+    }
+
+    public OrderPayment findOrderPaymentById(UUID paymentId) throws PaymentNotFoundException {
+
+        return orderPaymentRepository.findById(paymentId).orElseThrow(PaymentNotFoundException::new);
     }
 }

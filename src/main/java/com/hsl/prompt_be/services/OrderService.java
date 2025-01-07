@@ -2,8 +2,9 @@ package com.hsl.prompt_be.services;
 
 import com.hsl.prompt_be.entities.models.Order;
 import com.hsl.prompt_be.entities.models.OrderDocument;
-import com.hsl.prompt_be.entities.models.Payment;
+import com.hsl.prompt_be.entities.models.OrderPayment;
 import com.hsl.prompt_be.entities.models.PaymentMethod;
+import com.hsl.prompt_be.entities.models.PaymentRequestType;
 import com.hsl.prompt_be.entities.models.PaymentStatus;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.models.User;
@@ -130,22 +131,21 @@ public class OrderService {
         Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
         User user = userService.findByUserId(order.getCustomerId());
 
-        Payment payment = Payment.builder()
+        OrderPayment payment = OrderPayment.builder()
                 .status(PaymentStatus.pending)
                 .method(PaymentMethod.nil)
                 .amount(order.getCharge())
-                .orderId(orderId)
-                .amount(order.getCharge()).build();
+                .orderId(orderId).build();
 
-        paymentService.savePayment(payment);
+        paymentService.saveOrderPayment(payment);
 
-        return paymentService.initiateOrderPayment(payment.getPaymentId(), order, user);
+        return paymentService.initiatePayment(payment.getPaymentId(), order.getCharge(), user, PaymentRequestType.ORDER_PAYMENT);
     }
 
     @Transactional
     public AppResponse successfulPayment(KorapayWebhookRequest request) throws OrderNotFoundException, UserWalletNotFoundException, PaymentNotFoundException, PrinterNotFoundException, UserNotFoundException {
 
-        Payment payment = paymentService.findById(UUID.fromString(request.getData().getReference()));
+        OrderPayment payment = paymentService.findOrderPaymentById(UUID.fromString(request.getData().getReference()));
         payment.setStatus(request.getData().getStatus());
 
         if (payment.getMethod().equals(PaymentMethod.nil)) {
@@ -154,7 +154,7 @@ public class OrderService {
             payment.setUpdatedAt(Instant.now());
         }
 
-        paymentService.savePayment(payment);
+        paymentService.saveOrderPayment(payment);
 
         Order order = orderRepository.findById(payment.getOrderId()).orElseThrow(OrderNotFoundException::new);
         order.setPaid(true);
@@ -164,7 +164,7 @@ public class OrderService {
 
             User printerUser = userService.findByUserId(printerService.getPrinterById(order.getPrinterId()).getUserId());
 
-            userWalletService.addAmountToPrinterWallet(printerUser.getUserId(), order.getCharge());
+            userWalletService.addAmountToUserWallet(printerUser.getUserId(), order.getCharge());
             orderRepository.save(order);
         }
 

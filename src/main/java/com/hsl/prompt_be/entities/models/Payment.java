@@ -31,7 +31,7 @@ public class Payment {
 
     private int amount;
 
-    private UUID orderId;
+    private UUID userId;
 
     @Builder.Default private Instant createdAt = Instant.now();
     @Builder.Default private Instant updatedAt = Instant.now();
