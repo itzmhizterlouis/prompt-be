@@ -83,6 +83,7 @@ public class UserWalletService {
 
         if (request.getData().getStatus().equals(PaymentStatus.success)) {
 
+            System.out.println("Payment Success");
             User user = userService.findByUserId(payment.getUserId());
 
             addAmountToUserWallet(user.getUserId(), request.getData().getAmount());
