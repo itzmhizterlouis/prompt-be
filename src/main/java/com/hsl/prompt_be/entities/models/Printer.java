@@ -59,7 +59,7 @@ public class Printer {
 
     public Printer toDto() {
 
-        rating = reviews.stream().mapToInt(Review::getRating).sum();
+        rating = (int) reviews.stream().mapToInt(Review::getRating).average().orElse(0);
         return this;
     }
 }

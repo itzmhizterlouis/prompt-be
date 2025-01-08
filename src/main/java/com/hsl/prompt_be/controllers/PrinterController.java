@@ -3,6 +3,7 @@ package com.hsl.prompt_be.controllers;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
 import com.hsl.prompt_be.entities.requests.UpdateOpenStatusRequest;
+import com.hsl.prompt_be.entities.responses.VendorDashboardResponse;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.services.PrinterService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -58,5 +60,15 @@ public class PrinterController {
     public Printer updatePrinterOpenStatus(@PathVariable UUID printerId, @RequestBody UpdateOpenStatusRequest request) throws PrinthubException {
 
         return printerService.updatePrinterOpenStatus(printerId, request.getOpen());
+    }
+
+    @Operation(summary = "Vendor Dashboard details", description = "example request: /printers/dashboard?page=0&size=5")
+    @GetMapping("dashboard")
+    public VendorDashboardResponse getVendorDashboardDetails(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) throws PrinthubException {
+
+        return printerService.getVendorDashboardDetails(page, size);
     }
 }

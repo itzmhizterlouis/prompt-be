@@ -2,13 +2,18 @@ package com.hsl.prompt_be.services;
 
 import com.hsl.prompt_be.entities.models.OpenStatus;
 import com.hsl.prompt_be.entities.models.Printer;
+import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
+import com.hsl.prompt_be.entities.responses.VendorDashboardResponse;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UnauthorizedException;
+import com.hsl.prompt_be.repositories.OrderRepository;
 import com.hsl.prompt_be.repositories.PrinterRepository;
 import com.hsl.prompt_be.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -22,6 +27,8 @@ import java.util.stream.Collectors;
 public class PrinterService {
 
     private final PrinterRepository printerRepository;
+    private final UserWalletService userWalletService;
+    private final OrderRepository orderRepository;
 
     public List<Printer> getAllPrinters() {
 
@@ -73,6 +80,26 @@ public class PrinterService {
         return printerRepository.save(printer).toDto();
     }
 
+    public VendorDashboardResponse getVendorDashboardDetails(int page, int size) throws PrinthubException {
+
+        throwErrorIfLoggedInUserNotPrinter();
+
+        User user = UserUtil.getLoggedInUser();
+        Printer printer = getPrinterByUserId(user.getUserId()).orElseThrow(PrinterNotFoundException::new).toDto();
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        return VendorDashboardResponse.builder()
+                .numberOfTodayOrders(orderRepository.countByCreatedAt(Instant.now()))
+                .balance(userWalletService.getLoggedInUserWallet().getBalance())
+                .review(printer.getRating())
+                .open(printer.getOpen())
+                .weekdayClosing(printer.getWeekdayClosing())
+                .weekendClosing(printer.getWeekendClosing())
+                .weekdayOpening(printer.getWeekdayOpening())
+                .weekendOpening(printer.getWeekendOpening())
+                .orders(orderRepository.findAllByPrinterId(printer.getPrinterId(), pageRequest)).build();
+    }
+
     public Optional<Printer> getLoggedInPrinter() throws PrinthubException {
 
         return getPrinterByUserId(UserUtil.getLoggedInUser().getUserId());
@@ -89,6 +116,13 @@ public class PrinterService {
 
         if (!printer.getPrinterId().equals(printerId)) {
             throw new UnauthorizedException("You're not the owner of this account");
+        }
+    }
+
+    public void throwErrorIfLoggedInUserNotPrinter() throws PrinthubException {
+
+        if (!UserUtil.getLoggedInUser().isPrinter()) {
+            throw new UnauthorizedException("You're not a printer");
         }
     }
 }
