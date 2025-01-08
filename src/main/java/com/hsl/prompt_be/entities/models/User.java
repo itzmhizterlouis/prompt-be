@@ -52,7 +52,7 @@ public class User implements UserDetails {
         return email;
     }
 
-    public UserResponse toDto() {
+    public UserResponse toDto(int balance) {
 
         return UserResponse.builder()
                 .userId(userId)
@@ -62,6 +62,7 @@ public class User implements UserDetails {
                 .isPrinter(isPrinter)
                 .isEmailVerified(emailVerified)
                 .isEnabled(enabled)
+                .balance(balance)
                 .build();
     }
 }

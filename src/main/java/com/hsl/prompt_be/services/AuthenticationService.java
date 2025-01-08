@@ -16,6 +16,7 @@ import com.hsl.prompt_be.entities.responses.UserResponse;
 import com.hsl.prompt_be.exceptions.OtpNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UserNotFoundException;
+import com.hsl.prompt_be.exceptions.UserWalletNotFoundException;
 import com.hsl.prompt_be.repositories.PrinterRepository;
 import com.hsl.prompt_be.repositories.UserOtpRepository;
 import com.hsl.prompt_be.repositories.UserRepository;
@@ -57,14 +58,14 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(userRequest.getPassword()))
                 .build();
 
-        userRepository.save(user).toDto();
+        userRepository.save(user);
         UserWallet userWallet = UserWallet.builder()
                 .userId(user.getUserId()).build();
         userWalletService.save(userWallet);
 
         sendOtpToMail(generateOtp(), user.getEmail(), user.getUserId());
 
-        return user.toDto();
+        return user.toDto(userWallet.getBalance());
     }
 
     public LoginResponse login(LoginRequest request) throws PrinthubException {
@@ -92,10 +93,11 @@ public class AuthenticationService {
                 .isEnabled(user.isEnabled())
                 .userId(user.getUserId())
                 .printerId(printerId)
+                .balance(userWalletService.findByUserId(user.getUserId()).getBalance())
                 .build();
     }
 
-    public UserResponse verifyOtp(OtpRequest request) throws OtpNotFoundException, UserNotFoundException {
+    public UserResponse verifyOtp(OtpRequest request) throws OtpNotFoundException, UserNotFoundException, UserWalletNotFoundException {
 
         UserOtp userOtp = userOtpRepository.findByUserIdAndOtp(request.getUserId(), request.getOtp()).orElseThrow(OtpNotFoundException::new);
         throwErrorIfOtpIfExpired(userOtp);
@@ -106,7 +108,7 @@ public class AuthenticationService {
         user.setUpdatedAt(Instant.now());
         userRepository.save(user);
 
-        return user.toDto();
+        return user.toDto(userWalletService.findByUserId(user.getUserId()).getBalance());
     }
 
     public UserResponse getLoggedInUser() throws PrinthubException {
@@ -116,7 +118,7 @@ public class AuthenticationService {
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
 
-            return ((User) principal).toDto();
+            return ((User) principal).toDto(userWalletService.findByUserId(((User) principal).getUserId()).getBalance());
         }
 
         else {

@@ -40,6 +40,11 @@ public class UserWalletService {
         return userWalletRepository.save(userWallet);
     }
 
+    public UserWallet findByUserId(UUID userId) throws UserWalletNotFoundException {
+
+        return userWalletRepository.findById(userId).orElseThrow(UserWalletNotFoundException::new);
+    }
+
     public UserWallet addAmountToUserWallet(UUID userId, int amount) throws UserWalletNotFoundException {
 
         UserWallet userWallet = userWalletRepository.findById(userId).orElseThrow(UserWalletNotFoundException::new);

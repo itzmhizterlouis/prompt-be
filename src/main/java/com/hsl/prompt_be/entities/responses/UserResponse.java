@@ -17,4 +17,5 @@ public class UserResponse {
     private boolean isPrinter;
     private boolean isEmailVerified;
     private boolean isEnabled;
+    private int balance;
 }

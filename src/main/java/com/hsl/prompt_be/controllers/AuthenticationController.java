@@ -11,6 +11,7 @@ import com.hsl.prompt_be.entities.responses.UserResponse;
 import com.hsl.prompt_be.exceptions.OtpNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UserNotFoundException;
+import com.hsl.prompt_be.exceptions.UserWalletNotFoundException;
 import com.hsl.prompt_be.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +55,7 @@ public class AuthenticationController {
 
     @Operation(summary = "verify otp endpoint")
     @PutMapping("verify-otp")
-    public UserResponse verifyOtp(@RequestBody OtpRequest request) throws UserNotFoundException, OtpNotFoundException {
+    public UserResponse verifyOtp(@RequestBody OtpRequest request) throws UserNotFoundException, OtpNotFoundException, UserWalletNotFoundException {
 
         return authenticationService.verifyOtp(request);
     }
