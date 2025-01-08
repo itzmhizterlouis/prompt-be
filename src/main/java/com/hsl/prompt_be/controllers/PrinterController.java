@@ -3,10 +3,12 @@ package com.hsl.prompt_be.controllers;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
 import com.hsl.prompt_be.entities.requests.UpdateOpenStatusRequest;
+import com.hsl.prompt_be.entities.responses.AppResponse;
 import com.hsl.prompt_be.entities.responses.VendorDashboardResponse;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.services.PrinterService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,6 +62,13 @@ public class PrinterController {
     public Printer updatePrinterOpenStatus(@PathVariable UUID printerId, @RequestBody UpdateOpenStatusRequest request) throws PrinthubException {
 
         return printerService.updatePrinterOpenStatus(printerId, request.getOpen());
+    }
+
+    @Hidden
+    @GetMapping("cron/open_status")
+    public AppResponse openStatusCron() {
+
+        return printerService.openStatusCron();
     }
 
     @Operation(summary = "Vendor Dashboard details", description = "example request: /printers/dashboard?page=0&size=5")
