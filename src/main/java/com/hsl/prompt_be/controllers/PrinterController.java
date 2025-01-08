@@ -7,6 +7,7 @@ import com.hsl.prompt_be.entities.responses.AppResponse;
 import com.hsl.prompt_be.entities.responses.VendorDashboardResponse;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
+import com.hsl.prompt_be.exceptions.UnauthorizedException;
 import com.hsl.prompt_be.services.PrinterService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,10 +66,10 @@ public class PrinterController {
     }
 
     @Hidden
-    @GetMapping("cron/open_status")
-    public AppResponse openStatusCron() {
+    @GetMapping("cron/open_status/{cron_key}")
+    public AppResponse openStatusCron(@PathVariable String cron_key) throws UnauthorizedException {
 
-        return printerService.openStatusCron();
+        return printerService.openStatusCron(cron_key);
     }
 
     @Operation(summary = "Vendor Dashboard details", description = "example request: /printers/dashboard?page=0&size=5")

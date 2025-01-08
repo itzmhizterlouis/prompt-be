@@ -14,6 +14,7 @@ import com.hsl.prompt_be.repositories.PrinterRepository;
 import com.hsl.prompt_be.utils.UserUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,9 @@ public class PrinterService {
     private final PrinterRepository printerRepository;
     private final UserWalletService userWalletService;
     private final OrderRepository orderRepository;
+
+    @Value("${spring.cron.key}")
+    private String cron_key;
 
     public List<Printer> getAllPrinters() {
 
@@ -104,7 +108,11 @@ public class PrinterService {
     }
 
     @Transactional
-    public AppResponse openStatusCron() {
+    public AppResponse openStatusCron(String key) throws UnauthorizedException {
+
+        if (!cron_key.equals(key)) {
+            throw new UnauthorizedException("You're not allowed to access this url");
+        }
 
         List<Printer> printers = printerRepository.findAll();
         for (Printer printer : printers) {
