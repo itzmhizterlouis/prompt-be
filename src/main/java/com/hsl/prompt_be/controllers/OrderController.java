@@ -76,4 +76,11 @@ public class OrderController {
 
         return orderService.successfulPayment(request);
     }
+
+    @Operation(summary = "Endpoint for paying for order with user wallet balance")
+    @PostMapping("pay/{orderId}")
+    public AppResponse payForOrderWithWallet(@PathVariable UUID orderId) throws PrinthubException {
+
+        return orderService.payForOrderWithWallet(orderId);
+    }
 }

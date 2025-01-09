@@ -59,11 +59,4 @@ public class UserWalletController {
 
         return paymentService.findPaymentById(paymentId);
     }
-
-    @Operation(summary = "Endpoint for paying for order with user wallet balance")
-    @PostMapping("pay/{orderId}")
-    public AppResponse payForOrderWithWallet(@PathVariable UUID orderId) throws PrinthubException {
-
-        return userWalletService.payForOrderWithWallet(orderId);
-    }
 }

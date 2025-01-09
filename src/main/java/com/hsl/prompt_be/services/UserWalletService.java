@@ -1,6 +1,5 @@
 package com.hsl.prompt_be.services;
 
-import com.hsl.prompt_be.entities.models.Order;
 import com.hsl.prompt_be.entities.models.Payment;
 import com.hsl.prompt_be.entities.models.PaymentMethod;
 import com.hsl.prompt_be.entities.models.PaymentRequestType;
@@ -10,12 +9,10 @@ import com.hsl.prompt_be.entities.models.UserWallet;
 import com.hsl.prompt_be.entities.requests.KorapayWebhookRequest;
 import com.hsl.prompt_be.entities.responses.AppResponse;
 import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
-import com.hsl.prompt_be.exceptions.OrderNotFoundException;
 import com.hsl.prompt_be.exceptions.PaymentNotFoundException;
 import com.hsl.prompt_be.exceptions.UserNotFoundException;
 import com.hsl.prompt_be.exceptions.UserWalletNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
-import com.hsl.prompt_be.repositories.OrderRepository;
 import com.hsl.prompt_be.repositories.UserWalletRepository;
 import com.hsl.prompt_be.utils.UserUtil;
 import jakarta.transaction.Transactional;
@@ -31,7 +28,6 @@ import java.util.UUID;
 public class UserWalletService {
 
     private final UserWalletRepository userWalletRepository;
-    private final OrderRepository orderRepository;
     private final PaymentService paymentService;
     private final UserService userService;
 
@@ -94,37 +90,6 @@ public class UserWalletService {
 
         return AppResponse.builder()
                 .message("Payment reference has been successfully saved")
-                .status(HttpStatus.OK).build();
-    }
-
-    @Transactional
-    public AppResponse payForOrderWithWallet(UUID orderId) throws PrinthubException {
-
-        UserWallet userWallet = getLoggedInUserWallet();
-        int balance = userWallet.getBalance();
-
-        Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
-        int orderAmount = order.getCharge();
-
-        if (balance < orderAmount) {
-            throw new PrinthubException("Insufficient Funds");
-        }
-
-        if (order.isPaid()) {
-
-            return AppResponse.builder()
-                    .message("Order has already been paid for")
-                    .status(HttpStatus.OK).build();
-        }
-
-        order.setPaid(true);
-        orderRepository.save(order);
-
-        userWallet.setBalance(balance - orderAmount);
-        save(userWallet);
-
-        return AppResponse.builder()
-                .message("Payment has been successfully made")
                 .status(HttpStatus.OK).build();
     }
 }

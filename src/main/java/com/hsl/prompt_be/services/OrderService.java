@@ -8,6 +8,7 @@ import com.hsl.prompt_be.entities.models.PaymentRequestType;
 import com.hsl.prompt_be.entities.models.PaymentStatus;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.models.User;
+import com.hsl.prompt_be.entities.models.UserWallet;
 import com.hsl.prompt_be.entities.requests.EmailDetails;
 import com.hsl.prompt_be.entities.requests.KorapayWebhookRequest;
 import com.hsl.prompt_be.entities.requests.OrderRequest;
@@ -170,6 +171,37 @@ public class OrderService {
 
         return AppResponse.builder()
                 .message("Payment reference has been successfully saved")
+                .status(HttpStatus.OK).build();
+    }
+
+    @Transactional
+    public AppResponse payForOrderWithWallet(UUID orderId) throws PrinthubException {
+
+        UserWallet userWallet = userWalletService.getLoggedInUserWallet();
+        int balance = userWallet.getBalance();
+
+        Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
+        int orderAmount = order.getCharge();
+
+        if (balance < orderAmount) {
+            throw new PrinthubException("Insufficient Funds");
+        }
+
+        if (order.isPaid()) {
+
+            return AppResponse.builder()
+                    .message("Order has already been paid for")
+                    .status(HttpStatus.OK).build();
+        }
+
+        order.setPaid(true);
+        orderRepository.save(order);
+
+        userWallet.setBalance(balance - orderAmount);
+        userWalletService.save(userWallet);
+
+        return AppResponse.builder()
+                .message("Payment has been successfully made")
                 .status(HttpStatus.OK).build();
     }
 
