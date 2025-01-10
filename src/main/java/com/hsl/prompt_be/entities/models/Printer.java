@@ -36,7 +36,7 @@ public class Printer {
     private int uncolouredRate;
     private String bankName;
     private String accountName;
-    private long accountNumber;
+    private String accountNumber;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default private OpenStatus open = OpenStatus.NIL;

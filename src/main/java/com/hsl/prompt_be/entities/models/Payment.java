@@ -28,6 +28,8 @@ public class Payment {
     private PaymentStatus status;
     @Enumerated(EnumType.STRING)
     private PaymentMethod method;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default private PayType paymentType = PayType.PAY_IN;
 
     private int amount;
 

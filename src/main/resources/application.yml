@@ -46,10 +46,11 @@ server:
     context-path: /api/v1
 
 korapay:
+  payout: ${KORAPAY_PAYOUT_URL}
   checkout:
-    url: ${KORAPAY_PAYOUT_URL}
-    notification_url: ${KORAPAY_NOTIFICATION_URL}
-    success_callback_url: ${KORAPAY_SUCCESS_URL}
+    url: ${KORAPAY_PAYIN_URL}
+    notification_url: ${KORAPAY_ORDER_NOTIFICATION_URL}
+    success_callback_url: ${KORAPAY_ORDER_SUCCESS_URL}
     deposit_success_callback_url: ${KORAPAY_DEPOSIT_SUCCESS_URL}
     deposit_notification_url: ${KORAPAY_DEPOSIT_NOTIFICATION_URL}
   api:

@@ -166,6 +166,7 @@ public class OrderService {
             User printerUser = userService.findByUserId(printerService.getPrinterById(order.getPrinterId()).getUserId());
 
             userWalletService.addAmountToUserWallet(printerUser.getUserId(), order.getCharge());
+            userWalletService.addAmountToUserWallet(order.getCustomerId(), -order.getCharge());
             orderRepository.save(order);
         }
 

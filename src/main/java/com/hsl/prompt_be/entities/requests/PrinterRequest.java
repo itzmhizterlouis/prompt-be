@@ -14,7 +14,7 @@ public class PrinterRequest {
     private int uncolouredRate;
     private String bankName;
     private String accountName;
-    private long accountNumber;
+    private String accountNumber;
 
     private Instant weekdayClosing;
     private Instant weekdayOpening;

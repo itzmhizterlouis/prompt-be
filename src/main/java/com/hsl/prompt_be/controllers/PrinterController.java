@@ -4,6 +4,7 @@ import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
 import com.hsl.prompt_be.entities.requests.UpdateOpenStatusRequest;
 import com.hsl.prompt_be.entities.responses.AppResponse;
+import com.hsl.prompt_be.entities.responses.KorapayPayoutResponse;
 import com.hsl.prompt_be.entities.responses.VendorDashboardResponse;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -80,5 +82,12 @@ public class PrinterController {
     ) throws PrinthubException {
 
         return printerService.getVendorDashboardDetails(page, size);
+    }
+
+    @Operation(summary = "Withdraw balance")
+    @PostMapping("withdraw")
+    public KorapayPayoutResponse withdrawBalance() throws PrinthubException {
+
+        return printerService.withdrawBalance();
     }
 }

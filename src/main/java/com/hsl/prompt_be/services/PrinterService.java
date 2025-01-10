@@ -3,8 +3,11 @@ package com.hsl.prompt_be.services;
 import com.hsl.prompt_be.entities.models.OpenStatus;
 import com.hsl.prompt_be.entities.models.Printer;
 import com.hsl.prompt_be.entities.models.User;
+import com.hsl.prompt_be.entities.models.UserWallet;
+import com.hsl.prompt_be.entities.requests.KorapayPayoutRequest;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
 import com.hsl.prompt_be.entities.responses.AppResponse;
+import com.hsl.prompt_be.entities.responses.KorapayPayoutResponse;
 import com.hsl.prompt_be.entities.responses.VendorDashboardResponse;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
@@ -32,6 +35,7 @@ public class PrinterService {
 
     private final PrinterRepository printerRepository;
     private final UserWalletService userWalletService;
+    private final PaymentService paymentService;
     private final OrderRepository orderRepository;
 
     @Value("${spring.cron.key}")
@@ -105,6 +109,19 @@ public class PrinterService {
                 .weekdayOpening(printer.getWeekdayOpening())
                 .weekendOpening(printer.getWeekendOpening())
                 .orders(orderRepository.findAllByPrinterId(printer.getPrinterId(), pageRequest)).build();
+    }
+
+    @Transactional
+    public KorapayPayoutResponse withdrawBalance() throws PrinthubException {
+
+        UserWallet userWallet = userWalletService.getLoggedInUserWallet();
+        Printer printer = getLoggedInPrinter().orElseThrow(PrinterNotFoundException::new);
+
+        KorapayPayoutResponse response = paymentService.callKorapayPayoutApi(printer, userWallet);
+
+        userWalletService.addAmountToUserWallet(userWallet.getUserId(), -userWallet.getBalance());
+
+        return response;
     }
 
     @Transactional
