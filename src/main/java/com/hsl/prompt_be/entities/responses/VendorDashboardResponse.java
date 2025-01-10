@@ -20,5 +20,5 @@ public class VendorDashboardResponse {
     private Instant weekdayOpening;
     private Instant weekendClosing;
     private Instant weekendOpening;
-    private Page<Order> orders;
+//    private Page<Order> orders;
 }

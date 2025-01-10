@@ -77,11 +77,12 @@ public class PrinterController {
     @Operation(summary = "Vendor Dashboard details", description = "example request: /printers/dashboard?page=0&size=5")
     @GetMapping("dashboard")
     public VendorDashboardResponse getVendorDashboardDetails(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "5") int size
     ) throws PrinthubException {
 
-        return printerService.getVendorDashboardDetails(page, size);
+        return printerService.getVendorDashboardDetails();
+//        return printerService.getVendorDashboardDetails(page, size);
     }
 
     @Operation(summary = "Withdraw balance")

@@ -14,6 +14,6 @@ import java.util.UUID;
 public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecificationExecutor<Order> {
 
     boolean existsByPrinterIdAndCustomerId(UUID printerId, UUID customerId);
-    int countByCreatedAt(Instant createdAt);
+    int countByCreatedAtAndPrinterId(Instant createdAt, UUID printerId);
     Page<Order> findAllByPrinterId(UUID printerId, Pageable pageable);
 }

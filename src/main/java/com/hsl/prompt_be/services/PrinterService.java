@@ -91,24 +91,24 @@ public class PrinterService {
         return printerRepository.save(printer).toDto();
     }
 
-    public VendorDashboardResponse getVendorDashboardDetails(int page, int size) throws PrinthubException {
+    public VendorDashboardResponse getVendorDashboardDetails() throws PrinthubException {
 
         throwErrorIfLoggedInUserNotPrinter();
 
         User user = UserUtil.getLoggedInUser();
         Printer printer = getPrinterByUserId(user.getUserId()).orElseThrow(PrinterNotFoundException::new).toDto();
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+//        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         return VendorDashboardResponse.builder()
-                .numberOfTodayOrders(orderRepository.countByCreatedAt(Instant.now()))
+                .numberOfTodayOrders(orderRepository.countByCreatedAtAndPrinterId(Instant.now(), printer.getPrinterId()))
                 .balance(userWalletService.getLoggedInUserWallet().getBalance())
                 .review(printer.getRating())
                 .open(printer.getOpen())
                 .weekdayClosing(printer.getWeekdayClosing())
                 .weekendClosing(printer.getWeekendClosing())
                 .weekdayOpening(printer.getWeekdayOpening())
-                .weekendOpening(printer.getWeekendOpening())
-                .orders(orderRepository.findAllByPrinterId(printer.getPrinterId(), pageRequest)).build();
+                .weekendOpening(printer.getWeekendOpening()).build();
+//                .orders(orderRepository.findAllByPrinterId(printer.getPrinterId(), pageRequest)).build();
     }
 
     @Transactional
