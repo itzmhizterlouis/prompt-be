@@ -14,7 +14,8 @@ public class VendorDashboardResponse {
 
     private int numberOfTodayOrders;
     private int balance;
-    private int review;
+    private int totalNumberOfReviews;
+    private int rating;
     private OpenStatus open;
     private Instant weekdayClosing;
     private Instant weekdayOpening;

@@ -2,9 +2,7 @@ package com.hsl.prompt_be.services;
 
 import com.hsl.prompt_be.entities.models.OpenStatus;
 import com.hsl.prompt_be.entities.models.Printer;
-import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.models.UserWallet;
-import com.hsl.prompt_be.entities.requests.KorapayPayoutRequest;
 import com.hsl.prompt_be.entities.requests.PrinterRequest;
 import com.hsl.prompt_be.entities.responses.AppResponse;
 import com.hsl.prompt_be.entities.responses.KorapayPayoutResponse;
@@ -12,14 +10,11 @@ import com.hsl.prompt_be.entities.responses.VendorDashboardResponse;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UnauthorizedException;
-import com.hsl.prompt_be.repositories.OrderRepository;
 import com.hsl.prompt_be.repositories.PrinterRepository;
 import com.hsl.prompt_be.utils.UserUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +31,7 @@ public class PrinterService {
     private final PrinterRepository printerRepository;
     private final UserWalletService userWalletService;
     private final PaymentService paymentService;
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
     @Value("${spring.cron.key}")
     private String cron_key;
@@ -95,14 +90,14 @@ public class PrinterService {
 
         throwErrorIfLoggedInUserNotPrinter();
 
-        User user = UserUtil.getLoggedInUser();
-        Printer printer = getPrinterByUserId(user.getUserId()).orElseThrow(PrinterNotFoundException::new).toDto();
+        Printer printer = getLoggedInPrinter().orElseThrow(PrinterNotFoundException::new).toDto();
 //        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         return VendorDashboardResponse.builder()
-                .numberOfTodayOrders(orderRepository.countByCreatedAtAndPrinterId(Instant.now(), printer.getPrinterId()))
+                .numberOfTodayOrders(orderService.getOrdersByPrinterIdToday(printer.getPrinterId()))
                 .balance(userWalletService.getLoggedInUserWallet().getBalance())
-                .review(printer.getRating())
+                .rating(printer.getRating())
+                .totalNumberOfReviews(printer.getReviews().size())
                 .open(printer.getOpen())
                 .weekdayClosing(printer.getWeekdayClosing())
                 .weekendClosing(printer.getWeekendClosing())

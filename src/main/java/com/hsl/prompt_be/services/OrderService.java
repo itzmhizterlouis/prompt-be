@@ -34,6 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -270,5 +271,12 @@ public class OrderService {
                             .messageBody(printerMessageBody).build()
             );
         }
+    }
+
+    public int getOrdersByPrinterIdToday(UUID printerId) {
+        Instant startOfDay = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant endOfDay = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().minusMillis(1);
+
+        return orderRepository.countByPrinterIdAndCreatedAtBetween(printerId, startOfDay, endOfDay);
     }
 }
