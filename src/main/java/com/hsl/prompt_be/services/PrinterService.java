@@ -10,6 +10,7 @@ import com.hsl.prompt_be.entities.responses.VendorDashboardResponse;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UnauthorizedException;
+import com.hsl.prompt_be.repositories.OrderRepository;
 import com.hsl.prompt_be.repositories.PrinterRepository;
 import com.hsl.prompt_be.utils.UserUtil;
 import jakarta.transaction.Transactional;
@@ -19,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,7 +34,7 @@ public class PrinterService {
     private final PrinterRepository printerRepository;
     private final UserWalletService userWalletService;
     private final PaymentService paymentService;
-    private final OrderService orderService;
+    private final OrderRepository orderRepository;
 
     @Value("${spring.cron.key}")
     private String cron_key;
@@ -94,7 +97,7 @@ public class PrinterService {
 //        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         return VendorDashboardResponse.builder()
-                .numberOfTodayOrders(orderService.getOrdersByPrinterIdToday(printer.getPrinterId()))
+                .numberOfTodayOrders(getOrdersByPrinterIdToday(printer.getPrinterId()))
                 .balance(userWalletService.getLoggedInUserWallet().getBalance())
                 .rating(printer.getRating())
                 .totalNumberOfReviews(printer.getReviews().size())
@@ -161,5 +164,12 @@ public class PrinterService {
         if (!UserUtil.getLoggedInUser().isPrinter()) {
             throw new UnauthorizedException("You're not a printer");
         }
+    }
+
+    public int getOrdersByPrinterIdToday(UUID printerId) {
+        Instant startOfDay = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant endOfDay = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().minusMillis(1);
+
+        return orderRepository.countByPrinterIdAndCreatedAtBetween(printerId, startOfDay, endOfDay);
     }
 }
