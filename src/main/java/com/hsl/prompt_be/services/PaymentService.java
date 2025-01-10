@@ -204,7 +204,8 @@ public class PaymentService {
                 "039", "Stanbic IBTC Plc",
                 "232", "Sterling Bank Plc",
                 "032", "Union Bank Nigeria Plc",
-                "033", "United Bank for Africa Plc"
+                "033", "United Bank for Africa Plc",
+                "100033", "PALMPAY"
         ));
 
         bankToCode.putAll(Map.of(
