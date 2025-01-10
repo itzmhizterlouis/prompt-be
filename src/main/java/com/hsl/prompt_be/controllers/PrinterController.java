@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -61,10 +60,10 @@ public class PrinterController {
     }
 
     @Operation(summary = "Seperate endpoint for updating open status")
-    @PutMapping("{printerId}/update/open_status")
-    public Printer updatePrinterOpenStatus(@PathVariable UUID printerId, @RequestBody UpdateOpenStatusRequest request) throws PrinthubException {
+    @PutMapping("update/open_status")
+    public AppResponse updatePrinterOpenStatus(@RequestBody UpdateOpenStatusRequest request) throws PrinthubException {
 
-        return printerService.updatePrinterOpenStatus(printerId, request.getOpen());
+        return printerService.updatePrinterOpenStatus(request.getOpen());
     }
 
     @Hidden

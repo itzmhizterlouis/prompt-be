@@ -79,14 +79,17 @@ public class PrinterService {
         return printerRepository.save(printer).toDto();
     }
 
-    public Printer updatePrinterOpenStatus(UUID printerId, OpenStatus open) throws PrinthubException {
+    public AppResponse updatePrinterOpenStatus(OpenStatus open) throws PrinthubException {
 
-        throwErrorIfLoggedInUserIsNotPrinterId(printerId);
+        Printer printer = getLoggedInPrinter().get();
 
-        Printer printer = printerRepository.findById(printerId).orElseThrow(PrinterNotFoundException::new);
         printer.setOpen(open);
         printer.setUpdatedAt(Instant.now());
-        return printerRepository.save(printer).toDto();
+        printerRepository.save(printer).toDto();
+
+        return AppResponse.builder()
+                .message("You are now " + open.toString())
+                .status(HttpStatus.OK).build();
     }
 
     public VendorDashboardResponse getVendorDashboardDetails() throws PrinthubException {
