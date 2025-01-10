@@ -6,6 +6,7 @@ import com.hsl.prompt_be.entities.models.PaymentRequestType;
 import com.hsl.prompt_be.entities.models.PaymentStatus;
 import com.hsl.prompt_be.entities.models.User;
 import com.hsl.prompt_be.entities.models.UserWallet;
+import com.hsl.prompt_be.entities.requests.EmailDetails;
 import com.hsl.prompt_be.entities.requests.KorapayWebhookRequest;
 import com.hsl.prompt_be.entities.responses.AppResponse;
 import com.hsl.prompt_be.entities.responses.KorapayCheckoutResponse;
@@ -30,6 +31,7 @@ public class UserWalletService {
     private final UserWalletRepository userWalletRepository;
     private final PaymentService paymentService;
     private final UserService userService;
+    private final EmailService emailService;
 
     public UserWallet save(UserWallet userWallet) {
 
@@ -86,6 +88,13 @@ public class UserWalletService {
 
             User user = userService.findByUserId(payment.getUserId());
             addAmountToUserWallet(user.getUserId(), request.getData().getAmount());
+
+            emailService.sendSimpleMail(
+                    EmailDetails.builder()
+                            .recipient(user.getEmail())
+                            .messageBody("You made a deposit of " + payment.getAmount() + " to your Printhub wallet")
+                            .subject("PrintHub Wallet Deposit").build()
+            );
         }
 
         return AppResponse.builder()
