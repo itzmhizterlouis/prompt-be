@@ -97,6 +97,7 @@ public class UserWalletService {
         if (request.getEvent().contains("charge")) {
             if (request.getData().getStatus().equals(PaymentStatus.success)) {
 
+                System.out.println("Deposit Success");
                 addAmountToUserWallet(user.getUserId(), request.getData().getAmount());
 
                 emailService.sendSimpleMail(
@@ -107,6 +108,7 @@ public class UserWalletService {
                 );
             }
             else {
+                System.out.println("Deposit Failed");
                 emailService.sendSimpleMail(
                         EmailDetails.builder()
                                 .recipient(user.getEmail())
@@ -118,7 +120,7 @@ public class UserWalletService {
         else {
             if (request.getData().getStatus().equals(PaymentStatus.success)) {
 
-                System.out.println("Webhook Failed");
+                System.out.println("Transfer Success");
 
                 addAmountToUserWallet(user.getUserId(), -payment.getAmount());
                 emailService.sendSimpleMail(
@@ -130,7 +132,9 @@ public class UserWalletService {
             }
             else {
 
-                System.out.println("Webhook failed");
+                addAmountToUserWallet(user.getUserId(), -payment.getAmount()); //TODO: Remove this for failed transfer
+
+                System.out.println("Transfer failed");
                 emailService.sendSimpleMail(
                         EmailDetails.builder()
                                 .recipient(user.getEmail())
