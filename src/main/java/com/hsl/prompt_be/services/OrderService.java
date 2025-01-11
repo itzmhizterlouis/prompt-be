@@ -151,12 +151,14 @@ public class OrderService {
         System.out.println("Successful Payment Endpoint");
         UUID reference = UUID.fromString(request.getData().getReference());
 
+        System.out.println(reference);
+
         Optional<Payment> payment = paymentService.findOptionalPaymentById(reference);
         Optional<OrderPayment> orderPayment = paymentService.findOptionalOrderPaymentById(reference);
-        if (orderPayment == null && payment == null) {
+        if (orderPayment.isEmpty() && payment.isEmpty()) {
 
             throw new PaymentNotFoundException();
-        } else if (orderPayment == null) {
+        } else if (orderPayment.isEmpty()) {
 
             Payment realPayment = payment.get();
 
