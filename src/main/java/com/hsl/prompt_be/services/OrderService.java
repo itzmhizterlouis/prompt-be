@@ -247,6 +247,8 @@ public class OrderService {
         int balance = userWallet.getBalance();
 
         Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
+        Printer printer = printerService.getPrinterById(order.getPrinterId());
+        UserWallet printerUserWallet = userWalletService.findByUserId((printer.getUserId()));
         int orderAmount = order.getCharge();
 
         if (balance < orderAmount) {
@@ -264,7 +266,9 @@ public class OrderService {
         orderRepository.save(order);
 
         userWallet.setBalance(balance - orderAmount);
+        printerUserWallet.setBalance(printerUserWallet.getBalance() + orderAmount);
         userWalletService.save(userWallet);
+        userWalletService.save(printerUserWallet);
 
         return AppResponse.builder()
                 .message("Payment has been successfully made")
