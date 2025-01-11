@@ -1,8 +1,8 @@
 package com.hsl.prompt_be.exceptions;
 
-public class WalletBalanceIsZeroException extends PrinthubException {
+public class WalletBalanceException extends PrinthubException {
 
-    public WalletBalanceIsZeroException() {
-        super("WALLET BALANCE IS ZERO");
+    public WalletBalanceException() {
+        super("WALLET MONEY CANNOT BE WITHDRAWN BECAUSE IT IS LESS THAN N1000");
     }
 }
