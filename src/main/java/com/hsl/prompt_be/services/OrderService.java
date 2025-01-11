@@ -196,7 +196,6 @@ public class OrderService {
                 Printer printer = printerService.getPrinterByUserId(printerUser.getUserId()).get();
 
                 userWalletService.addAmountToUserWallet(printerUser.getUserId(), order.getCharge());
-                userWalletService.addAmountToUserWallet(order.getCustomerId(), -order.getCharge());
                 orderRepository.save(order);
                 sendOrderInformationToEmail(
                         order.getCustomerId(), order.getPrinterId(), "Order Payment Success",
