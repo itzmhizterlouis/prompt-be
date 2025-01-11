@@ -51,7 +51,8 @@ public class SecurityConfiguration {
                                 "/authentication/signup", "/authentication/login", "authentication/generate-otp",
                                 "/authentication/verify-otp", "authentication/{userId}/printers",
                                 "/swagger-ui/**", "/v3/api-docs/**", "/orders/payments/confirm",
-                                "/user_wallet/verify/deposit", "/printers/cron/open_status/**"
+                                "/user_wallet/verify/deposit", "/printers/cron/open_status/**",
+                                "/user_wallet/webhook"
                         ).permitAll() // Allow access to "/auth/**"
                         .anyRequest().authenticated() // Require authentication for all other requests
                 )
