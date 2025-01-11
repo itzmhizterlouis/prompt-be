@@ -83,7 +83,6 @@ public class UserWalletService {
 
     public AppResponse korapayWebhook(KorapayWebhookRequest request) throws PaymentNotFoundException, UserNotFoundException, UserWalletNotFoundException {
 
-        System.out.println("Entered Here");
         Payment payment = paymentService.findPaymentById(UUID.fromString(request.getData().getReference()));
         payment.setStatus(request.getData().getStatus());
 
@@ -92,6 +91,7 @@ public class UserWalletService {
             payment.setMethod(request.getData().getPayment_method());
             payment.setUpdatedAt(Instant.now());
         }
+        payment.setMethod(PaymentMethod.nil);
         paymentService.savePayment(payment);
         User user = userService.findByUserId(payment.getUserId());
 
