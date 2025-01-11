@@ -48,8 +48,8 @@ public class SecurityConfiguration {
                 .cors(httpSecurityCorsConfigurer -> corsConfigurationSource())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/authentication/signup", "/authentication/login", "authentication/generate-otp",
-                                "/authentication/verify-otp", "authentication/{userId}/printers",
+                                "/authentication/signup", "/authentication/login", "/authentication/generate-otp/**",
+                                "/authentication/verify-otp", "/authentication/{userId}/printers",
                                 "/swagger-ui/**", "/v3/api-docs/**", "/orders/payments/confirm",
                                 "/printers/cron/open_status/**", "/user_wallet/webhook"
                         ).permitAll() // Allow access to "/auth/**"
