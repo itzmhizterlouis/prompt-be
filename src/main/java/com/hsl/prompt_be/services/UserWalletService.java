@@ -50,6 +50,8 @@ public class UserWalletService {
         userWallet.setBalance(userWallet.getBalance() + amount);
         userWallet.setUpdatedAt(Instant.now());
 
+        System.out.println("Entered here");
+
         return userWalletRepository.save(userWallet);
     }
 
