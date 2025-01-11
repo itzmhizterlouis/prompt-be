@@ -83,6 +83,7 @@ public class UserWalletService {
 
     public AppResponse korapayWebhook(KorapayWebhookRequest request) throws PaymentNotFoundException, UserNotFoundException, UserWalletNotFoundException {
 
+        System.out.println("Entered here");
         Payment payment = paymentService.findPaymentById(UUID.fromString(request.getData().getReference()));
         payment.setStatus(request.getData().getStatus());
 
@@ -119,6 +120,8 @@ public class UserWalletService {
         else {
             if (request.getData().getStatus().equals(PaymentStatus.success)) {
 
+                System.out.println("Webhook Failed");
+
                 addAmountToUserWallet(user.getUserId(), -payment.getAmount());
                 emailService.sendSimpleMail(
                         EmailDetails.builder()
@@ -128,6 +131,8 @@ public class UserWalletService {
                 );
             }
             else {
+
+                System.out.println("Webhook failed");
                 emailService.sendSimpleMail(
                         EmailDetails.builder()
                                 .recipient(user.getEmail())
@@ -136,6 +141,8 @@ public class UserWalletService {
                 );
             }
         }
+
+        System.out.println("End of webhook");
 
         return AppResponse.builder()
                 .message("Payment reference has been successfully saved")
