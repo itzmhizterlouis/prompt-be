@@ -72,7 +72,7 @@ public class UserWalletService {
         return paymentService.initiatePayment(payment.getPaymentId(), amount, user, PaymentRequestType.WALLET_PAYMENT);
     }
 
-    public AppResponse depositWebhook(KorapayWebhookRequest request) throws PaymentNotFoundException, UserNotFoundException, UserWalletNotFoundException {
+    public AppResponse korapayWebhook(KorapayWebhookRequest request) throws PaymentNotFoundException, UserNotFoundException, UserWalletNotFoundException {
 
         Payment payment = paymentService.findPaymentById(UUID.fromString(request.getData().getReference()));
         payment.setStatus(request.getData().getStatus());

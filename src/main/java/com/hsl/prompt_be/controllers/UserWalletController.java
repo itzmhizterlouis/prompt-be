@@ -47,10 +47,10 @@ public class UserWalletController {
     }
 
     @Hidden
-    @PostMapping("verify/deposit")
-    public AppResponse depositWebhook(@RequestBody KorapayWebhookRequest request) throws PaymentNotFoundException, UserNotFoundException, UserWalletNotFoundException {
+    @PostMapping("webhook")
+    public AppResponse korapayWebhook(@RequestBody KorapayWebhookRequest request) throws PaymentNotFoundException, UserNotFoundException, UserWalletNotFoundException {
 
-        return userWalletService.depositWebhook(request);
+        return userWalletService.korapayWebhook(request);
     }
 
     @Operation(summary = "Get Payment Details by Payment Id")
