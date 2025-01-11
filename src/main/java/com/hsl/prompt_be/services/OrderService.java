@@ -165,10 +165,16 @@ public class OrderService {
         if (request.getData().getStatus().equals(PaymentStatus.success)) {
 
             User printerUser = userService.findByUserId(printerService.getPrinterById(order.getPrinterId()).getUserId());
+            Printer printer = printerService.getPrinterByUserId(printerUser.getUserId()).get();
 
             userWalletService.addAmountToUserWallet(printerUser.getUserId(), order.getCharge());
             userWalletService.addAmountToUserWallet(order.getCustomerId(), -order.getCharge());
             orderRepository.save(order);
+            sendOrderInformationToEmail(
+                    order.getCustomerId(), order.getPrinterId(), "Order Payment Success",
+                    "Payment of " + order.getCharge() + " was made successfully to you",
+                    "You successfully made payment of " + order.getCharge() + " to " + printer.getName()
+            );
         }
 
         return AppResponse.builder()
