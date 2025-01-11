@@ -10,6 +10,7 @@ import com.hsl.prompt_be.entities.responses.VendorDashboardResponse;
 import com.hsl.prompt_be.exceptions.PrinterNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UnauthorizedException;
+import com.hsl.prompt_be.exceptions.WalletBalanceException;
 import com.hsl.prompt_be.repositories.OrderRepository;
 import com.hsl.prompt_be.repositories.PrinterRepository;
 import com.hsl.prompt_be.utils.UserUtil;
@@ -117,6 +118,11 @@ public class PrinterService {
 
         UserWallet userWallet = userWalletService.getLoggedInUserWallet();
         Printer printer = getLoggedInPrinter().orElseThrow(PrinterNotFoundException::new);
+
+        if (userWallet.getBalance() < 1000) {
+
+            throw new WalletBalanceException();
+        }
 
         return paymentService.callKorapayPayoutApi(printer, userWallet);
     }

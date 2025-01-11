@@ -64,11 +64,10 @@ public class UserWalletService {
     public KorapayCheckoutResponse initiateDeposit(int amount) throws PrinthubException {
 
         User user = UserUtil.getLoggedInUser();
-        UserWallet userWallet = getLoggedInUserWallet();
 
-        if (userWallet.getBalance() <= 1000) {
+        if (amount < 100) {
 
-            throw new WalletBalanceException();
+            throw new PrinthubException("Cannot Deposit amount less than 100 naira");
         }
 
         Payment payment = Payment.builder()
@@ -83,7 +82,6 @@ public class UserWalletService {
 
     public AppResponse korapayWebhook(KorapayWebhookRequest request) throws PaymentNotFoundException, UserNotFoundException, UserWalletNotFoundException {
 
-        System.out.println("Entered here");
         Payment payment = paymentService.findPaymentById(UUID.fromString(request.getData().getReference()));
         payment.setStatus(request.getData().getStatus());
 
