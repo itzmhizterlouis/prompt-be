@@ -14,6 +14,7 @@ import com.hsl.prompt_be.exceptions.PaymentNotFoundException;
 import com.hsl.prompt_be.exceptions.UserNotFoundException;
 import com.hsl.prompt_be.exceptions.UserWalletNotFoundException;
 import com.hsl.prompt_be.exceptions.PrinthubException;
+import com.hsl.prompt_be.exceptions.WalletBalanceIsZeroException;
 import com.hsl.prompt_be.repositories.UserWalletRepository;
 import com.hsl.prompt_be.utils.UserUtil;
 import jakarta.transaction.Transactional;
@@ -61,6 +62,12 @@ public class UserWalletService {
     public KorapayCheckoutResponse initiateDeposit(int amount) throws PrinthubException {
 
         User user = UserUtil.getLoggedInUser();
+        UserWallet userWallet = getLoggedInUserWallet();
+
+        if (userWallet.getBalance() == 0) {
+
+            throw new WalletBalanceIsZeroException();
+        }
 
         Payment payment = Payment.builder()
                 .status(PaymentStatus.pending)
