@@ -147,6 +147,7 @@ public class OrderService {
     @Transactional
     public AppResponse successfulPayment(KorapayWebhookRequest request) throws OrderNotFoundException, UserWalletNotFoundException, PaymentNotFoundException, PrinterNotFoundException, UserNotFoundException {
 
+        System.out.println("Successful Payment Endpoint");
         OrderPayment payment = paymentService.findOrderPaymentById(UUID.fromString(request.getData().getReference()));
         payment.setStatus(request.getData().getStatus());
 
