@@ -33,6 +33,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -154,7 +155,7 @@ public class PaymentService {
 
             request.setRedirect_url(depositSuccessCallbackUrl);
             request.setNotification_url(depositNotificationUrl);
-            request.setNarration("Order for " + user.getEmail());
+            request.setNarration("Deposit for " + user.getEmail());
         }
 
         return callKorapayCheckoutApi(request);
@@ -179,6 +180,17 @@ public class PaymentService {
 
         return orderPaymentRepository.findById(paymentId).orElseThrow(PaymentNotFoundException::new);
     }
+
+    public Optional<Payment> findOptionalPaymentById(UUID paymentId) {
+
+        return paymentRepository.findById(paymentId);
+    }
+
+    public Optional<OrderPayment> findOptionalOrderPaymentById(UUID orderPaymentId) {
+
+        return orderPaymentRepository.findById(orderPaymentId);
+    }
+
 
     public String getCodeByBankName(String bankName) {
 

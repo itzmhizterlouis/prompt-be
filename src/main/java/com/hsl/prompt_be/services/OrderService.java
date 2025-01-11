@@ -3,6 +3,7 @@ package com.hsl.prompt_be.services;
 import com.hsl.prompt_be.entities.models.Order;
 import com.hsl.prompt_be.entities.models.OrderDocument;
 import com.hsl.prompt_be.entities.models.OrderPayment;
+import com.hsl.prompt_be.entities.models.Payment;
 import com.hsl.prompt_be.entities.models.PaymentMethod;
 import com.hsl.prompt_be.entities.models.PaymentRequestType;
 import com.hsl.prompt_be.entities.models.PaymentStatus;
@@ -148,35 +149,90 @@ public class OrderService {
     public AppResponse successfulPayment(KorapayWebhookRequest request) throws OrderNotFoundException, UserWalletNotFoundException, PaymentNotFoundException, PrinterNotFoundException, UserNotFoundException {
 
         System.out.println("Successful Payment Endpoint");
-        OrderPayment payment = paymentService.findOrderPaymentById(UUID.fromString(request.getData().getReference()));
-        payment.setStatus(request.getData().getStatus());
+        UUID reference = UUID.fromString(request.getData().getReference());
 
-        if (payment.getMethod().equals(PaymentMethod.nil)) {
+        Optional<Payment> payment = paymentService.findOptionalPaymentById(reference);
+        Optional<OrderPayment> orderPayment = paymentService.findOptionalOrderPaymentById(reference);
+        if (orderPayment == null && payment == null) {
 
-            payment.setMethod(request.getData().getPayment_method());
-            payment.setUpdatedAt(Instant.now());
+            throw new PaymentNotFoundException();
+        } else if (orderPayment == null) {
+
+            Payment realPayment = payment.get();
+
+            realPayment.setStatus(request.getData().getStatus());
+
+            if (realPayment.getMethod().equals(PaymentMethod.nil)) {
+
+                realPayment.setMethod(request.getData().getPayment_method());
+                realPayment.setUpdatedAt(Instant.now());
+            }
+
+            paymentService.savePayment(realPayment);
+
+            userWalletService.addAmountToUserWallet(realPayment.getUserId(), realPayment.getAmount());
+        } else {
+            OrderPayment realPayment = orderPayment.get();
+
+            realPayment.setStatus(request.getData().getStatus());
+
+            if (realPayment.getMethod().equals(PaymentMethod.nil)) {
+
+                realPayment.setMethod(request.getData().getPayment_method());
+                realPayment.setUpdatedAt(Instant.now());
+            }
+
+            paymentService.saveOrderPayment(realPayment);
+
+            Order order = orderRepository.findById(realPayment.getOrderId()).orElseThrow(OrderNotFoundException::new);
+            order.setPaid(true);
+            order.setUpdatedAt(Instant.now());
+
+            if (request.getData().getStatus().equals(PaymentStatus.success)) {
+
+                User printerUser = userService.findByUserId(printerService.getPrinterById(order.getPrinterId()).getUserId());
+                Printer printer = printerService.getPrinterByUserId(printerUser.getUserId()).get();
+
+                userWalletService.addAmountToUserWallet(printerUser.getUserId(), order.getCharge());
+                userWalletService.addAmountToUserWallet(order.getCustomerId(), -order.getCharge());
+                orderRepository.save(order);
+                sendOrderInformationToEmail(
+                        order.getCustomerId(), order.getPrinterId(), "Order Payment Success",
+                        "Payment of " + order.getCharge() + " was made successfully to you",
+                        "You successfully made payment of " + order.getCharge() + " to " + printer.getName()
+                );
+            }
         }
 
-        paymentService.saveOrderPayment(payment);
 
-        Order order = orderRepository.findById(payment.getOrderId()).orElseThrow(OrderNotFoundException::new);
-        order.setPaid(true);
-        order.setUpdatedAt(Instant.now());
+//        payment.setStatus(request.getData().getStatus());
+//
+//        if (payment.getMethod().equals(PaymentMethod.nil)) {
+//
+//            payment.setMethod(request.getData().getPayment_method());
+//            payment.setUpdatedAt(Instant.now());
+//        }
+//
+//        paymentService.saveOrderPayment(payment);
 
-        if (request.getData().getStatus().equals(PaymentStatus.success)) {
-
-            User printerUser = userService.findByUserId(printerService.getPrinterById(order.getPrinterId()).getUserId());
-            Printer printer = printerService.getPrinterByUserId(printerUser.getUserId()).get();
-
-            userWalletService.addAmountToUserWallet(printerUser.getUserId(), order.getCharge());
-            userWalletService.addAmountToUserWallet(order.getCustomerId(), -order.getCharge());
-            orderRepository.save(order);
-            sendOrderInformationToEmail(
-                    order.getCustomerId(), order.getPrinterId(), "Order Payment Success",
-                    "Payment of " + order.getCharge() + " was made successfully to you",
-                    "You successfully made payment of " + order.getCharge() + " to " + printer.getName()
-            );
-        }
+//        Order order = orderRepository.findById(payment.getOrderId()).orElseThrow(OrderNotFoundException::new);
+//        order.setPaid(true);
+//        order.setUpdatedAt(Instant.now());
+//
+//        if (request.getData().getStatus().equals(PaymentStatus.success)) {
+//
+//            User printerUser = userService.findByUserId(printerService.getPrinterById(order.getPrinterId()).getUserId());
+//            Printer printer = printerService.getPrinterByUserId(printerUser.getUserId()).get();
+//
+//            userWalletService.addAmountToUserWallet(printerUser.getUserId(), order.getCharge());
+//            userWalletService.addAmountToUserWallet(order.getCustomerId(), -order.getCharge());
+//            orderRepository.save(order);
+//            sendOrderInformationToEmail(
+//                    order.getCustomerId(), order.getPrinterId(), "Order Payment Success",
+//                    "Payment of " + order.getCharge() + " was made successfully to you",
+//                    "You successfully made payment of " + order.getCharge() + " to " + printer.getName()
+//            );
+//        }
 
         return AppResponse.builder()
                 .message("Payment reference has been successfully saved")
