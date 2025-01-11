@@ -83,18 +83,48 @@ public class UserWalletService {
             payment.setUpdatedAt(Instant.now());
         }
         paymentService.savePayment(payment);
+        User user = userService.findByUserId(payment.getUserId());
 
-        if (request.getData().getStatus().equals(PaymentStatus.success)) {
+        if (request.getEvent().contains("charge")) {
+            if (request.getData().getStatus().equals(PaymentStatus.success)) {
 
-            User user = userService.findByUserId(payment.getUserId());
-            addAmountToUserWallet(user.getUserId(), request.getData().getAmount());
+                addAmountToUserWallet(user.getUserId(), request.getData().getAmount());
 
-            emailService.sendSimpleMail(
-                    EmailDetails.builder()
-                            .recipient(user.getEmail())
-                            .messageBody("You made a deposit of " + payment.getAmount() + " to your Printhub wallet")
-                            .subject("PrintHub Wallet Deposit").build()
-            );
+                emailService.sendSimpleMail(
+                        EmailDetails.builder()
+                                .recipient(user.getEmail())
+                                .messageBody("You made a deposit of " + payment.getAmount() + " to your Printhub wallet")
+                                .subject("PrintHub Wallet Deposit").build()
+                );
+            }
+            else {
+                emailService.sendSimpleMail(
+                        EmailDetails.builder()
+                                .recipient(user.getEmail())
+                                .messageBody("Deposit of " + payment.getAmount() + " failed")
+                                .subject("PrintHub Wallet Deposit").build()
+                );
+            }
+        }
+        else {
+            if (request.getData().getStatus().equals(PaymentStatus.success)) {
+
+                addAmountToUserWallet(user.getUserId(), -payment.getAmount());
+                emailService.sendSimpleMail(
+                        EmailDetails.builder()
+                                .recipient(user.getEmail())
+                                .messageBody("You successfully withdrew " + payment.getAmount() + " from your Printhub wallet")
+                                .subject("PrintHub Wallet Deposit").build()
+                );
+            }
+            else {
+                emailService.sendSimpleMail(
+                        EmailDetails.builder()
+                                .recipient(user.getEmail())
+                                .messageBody("Withdrawal of " + payment.getAmount() + " failed")
+                                .subject("PrintHub Wallet Deposit").build()
+                );
+            }
         }
 
         return AppResponse.builder()

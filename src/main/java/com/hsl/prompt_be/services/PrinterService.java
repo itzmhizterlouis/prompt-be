@@ -118,11 +118,7 @@ public class PrinterService {
         UserWallet userWallet = userWalletService.getLoggedInUserWallet();
         Printer printer = getLoggedInPrinter().orElseThrow(PrinterNotFoundException::new);
 
-        KorapayPayoutResponse response = paymentService.callKorapayPayoutApi(printer, userWallet);
-
-        userWalletService.addAmountToUserWallet(userWallet.getUserId(), -userWallet.getBalance());
-
-        return response;
+        return paymentService.callKorapayPayoutApi(printer, userWallet);
     }
 
     @Transactional
