@@ -95,6 +95,8 @@ public class UserWalletService {
         paymentService.savePayment(payment);
         User user = userService.findByUserId(payment.getUserId());
 
+        System.out.println("Korapay Webhook Entry");
+
         if (request.getEvent().contains("charge")) {
             if (request.getData().getStatus().equals(PaymentStatus.success)) {
 
