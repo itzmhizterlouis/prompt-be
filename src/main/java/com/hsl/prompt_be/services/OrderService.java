@@ -201,8 +201,8 @@ public class OrderService {
                 orderRepository.save(order);
                 sendOrderInformationToEmail(
                         order.getCustomerId(), order.getPrinterId(), "Order Payment Success",
-                        "Payment of " + order.getCharge() + " was made successfully to you\nYou received commission of " + calculateVendorProfit(order.getTotalNumberOfPages()) +
-                        " hence total profit is " + getTotalVendorProfit(order),
+                        "Payment of ₦" + order.getCharge() + " was made successfully to you\nYou received commission of ₦" + calculateVendorProfit(order.getTotalNumberOfPages()) +
+                        " hence total profit is ₦" + getTotalVendorProfit(order),
                         "You successfully made payment of " + order.getCharge() + " to " + printer.getName()
                 );
             }
