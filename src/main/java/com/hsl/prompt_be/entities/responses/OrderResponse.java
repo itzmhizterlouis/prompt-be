@@ -18,6 +18,7 @@ public class OrderResponse {
 
     private String description;
     private int charge;
+    private int totalNumberOfPages;
 
     private PaymentType paymentType; // on_delivery, online
     private OrderStatus status; // cancelled, complete, invalid, pending

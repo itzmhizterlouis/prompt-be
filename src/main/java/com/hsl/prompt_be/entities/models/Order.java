@@ -33,6 +33,7 @@ public class Order {
 
     private String description;
     private int charge;
+    private int totalNumberOfPages;
 
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType; // on_delivery, online
@@ -68,6 +69,7 @@ public class Order {
                 .printerId(printerId)
                 .customerName(customerName)
                 .printerName(printerName)
+                .totalNumberOfPages(totalNumberOfPages)
                 .build();
     }
 }

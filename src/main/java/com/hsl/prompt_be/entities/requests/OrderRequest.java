@@ -11,6 +11,7 @@ public class OrderRequest {
 
     private String description;
     private int charge;
+    private int totalNumberOfPages;
     private PaymentType paymentType;
     private Instant timeExpected;
     private List<OrderDocumentRequest> documents;

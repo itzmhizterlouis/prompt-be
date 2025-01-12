@@ -62,6 +62,7 @@ public class OrderService {
                 .charge(request.getCharge())
                 .paymentType(request.getPaymentType())
                 .timeExpected(request.getTimeExpected())
+                .totalNumberOfPages(request.getTotalNumberOfPages())
                 .customerId(UserUtil.getLoggedInUser().getUserId())
                 .printerId(printerId)
                 .build();
@@ -138,11 +139,12 @@ public class OrderService {
                 .status(PaymentStatus.pending)
                 .method(PaymentMethod.nil)
                 .amount(order.getCharge())
+                .fee(calculateOrderFee(order.getTotalNumberOfPages()))
                 .orderId(orderId).build();
 
         paymentService.saveOrderPayment(payment);
 
-        return paymentService.initiatePayment(payment.getPaymentId(), order.getCharge(), user, PaymentRequestType.ORDER_PAYMENT);
+        return paymentService.initiatePayment(payment.getPaymentId(), payment.getAmount() + payment.getFee(), user, PaymentRequestType.ORDER_PAYMENT);
     }
 
     @Transactional
@@ -195,11 +197,12 @@ public class OrderService {
                 User printerUser = userService.findByUserId(printerService.getPrinterById(order.getPrinterId()).getUserId());
                 Printer printer = printerService.getPrinterByUserId(printerUser.getUserId()).get();
 
-                userWalletService.addAmountToUserWallet(printerUser.getUserId(), order.getCharge());
+                userWalletService.addAmountToUserWallet(printerUser.getUserId(), getTotalVendorProfit(order));
                 orderRepository.save(order);
                 sendOrderInformationToEmail(
                         order.getCustomerId(), order.getPrinterId(), "Order Payment Success",
-                        "Payment of " + order.getCharge() + " was made successfully to you",
+                        "Payment of " + order.getCharge() + " was made successfully to you\nYou received commission of " + calculateVendorProfit(order.getTotalNumberOfPages()) +
+                        " hence total profit is " + getTotalVendorProfit(order),
                         "You successfully made payment of " + order.getCharge() + " to " + printer.getName()
                 );
             }
@@ -346,5 +349,20 @@ public class OrderService {
         Instant endOfDay = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().minusMillis(1);
 
         return orderRepository.countByPrinterIdAndCreatedAtBetween(printerId, startOfDay, endOfDay);
+    }
+
+    public int calculateOrderFee(int pages) {
+
+        return pages * 5;
+    }
+
+    public int calculateVendorProfit(int pages) {
+
+        return pages * 2;
+    }
+
+    public int getTotalVendorProfit(Order order) {
+
+        return order.getCharge() + order.getTotalNumberOfPages();
     }
 }
