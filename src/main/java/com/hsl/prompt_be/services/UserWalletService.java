@@ -101,7 +101,7 @@ public class UserWalletService {
             if (request.getData().getStatus().equals(PaymentStatus.success)) {
 
                 System.out.println("Deposit Success");
-                addAmountToUserWallet(user.getUserId(), request.getData().getAmount());
+                addAmountToUserWallet(user.getUserId(), request.getData().getAmount() - payment.getFee());
 
                 emailService.sendSimpleMail(
                         EmailDetails.builder()

@@ -174,7 +174,7 @@ public class OrderService {
 
             paymentService.savePayment(realPayment);
 
-            userWalletService.addAmountToUserWallet(realPayment.getUserId(), realPayment.getAmount());
+            userWalletService.addAmountToUserWallet(realPayment.getUserId(), realPayment.getAmount() - realPayment.getFee());
         } else {
             OrderPayment realPayment = orderPayment.get();
 
