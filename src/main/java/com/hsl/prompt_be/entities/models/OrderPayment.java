@@ -30,6 +30,7 @@ public class OrderPayment {
     private PaymentMethod method;
 
     private int amount;
+    private int fee;
 
     private UUID orderId;
 

@@ -32,6 +32,7 @@ public class Payment {
     @Builder.Default private PayType paymentType = PayType.PAY_IN;
 
     private int amount;
+    private int fee;
 
     private UUID userId;
 

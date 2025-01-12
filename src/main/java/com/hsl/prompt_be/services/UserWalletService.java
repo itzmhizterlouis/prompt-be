@@ -74,10 +74,11 @@ public class UserWalletService {
                 .status(PaymentStatus.pending)
                 .method(PaymentMethod.nil)
                 .amount(amount)
+                .fee(calculateDepositCharge(amount))
                 .userId(user.getUserId()).build();
         paymentService.savePayment(payment);
 
-        return paymentService.initiatePayment(payment.getPaymentId(), amount, user, PaymentRequestType.WALLET_PAYMENT);
+        return paymentService.initiatePayment(payment.getPaymentId(), amount + payment.getFee(), user, PaymentRequestType.WALLET_PAYMENT); // amount here
     }
 
     public AppResponse korapayWebhook(KorapayWebhookRequest request) throws PaymentNotFoundException, UserNotFoundException, UserWalletNotFoundException {
@@ -149,5 +150,22 @@ public class UserWalletService {
         return AppResponse.builder()
                 .message("Payment reference has been successfully saved")
                 .status(HttpStatus.OK).build();
+    }
+
+    public int calculateDepositCharge(int amount) {
+
+        if (amount <= 500) {
+            return 10;
+        }
+        if (amount <= 1000) {
+            return 30;
+        }
+        else if (amount <= 3000) {
+            return 50;
+        }
+        else if (amount <= 5000) {
+            return 100;
+        }
+        return (int) (0.02 * amount);
     }
 }
