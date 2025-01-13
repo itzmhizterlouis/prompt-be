@@ -17,6 +17,8 @@ import com.hsl.prompt_be.services.OrderService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.UUID;
@@ -82,5 +85,16 @@ public class OrderController {
     public AppResponse payForOrderWithWallet(@PathVariable UUID orderId) throws PrinthubException {
 
         return orderService.payForOrderWithWallet(orderId);
+    }
+
+    @GetMapping("/ip")
+    public ResponseEntity<String> getIP() {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String ip = restTemplate.getForObject("https://httpbin.org/ip", String.class);
+            return ResponseEntity.ok("Outgoing IP: " + ip);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
     }
 }
