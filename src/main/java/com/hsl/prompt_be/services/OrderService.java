@@ -85,7 +85,7 @@ public class OrderService {
         sendOrderInformationToEmail(
                 orderResponse.getCustomerId(), orderResponse.getPrinterId(), "Print Order Notification",
                 orderResponse.getCustomerName() + " placed an order to be received at "
-                        + convertInstantToHumanReadable(orderResponse.getTimeExpected()),
+                        + convertInstantToHumanReadable(orderResponse.getTimeExpected()) + "\nAccess the order at ",
                 "You placed an order to " + orderResponse.getPrinterName() + " to be received at "
                         + convertInstantToHumanReadable(orderResponse.getTimeExpected())
         );
@@ -363,6 +363,6 @@ public class OrderService {
 
     public int getTotalVendorProfit(Order order) {
 
-        return order.getCharge() + order.getTotalNumberOfPages();
+        return order.getCharge() + (order.getTotalNumberOfPages() * 2);
     }
 }
