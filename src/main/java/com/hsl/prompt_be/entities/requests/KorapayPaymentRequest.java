@@ -4,12 +4,15 @@ import com.hsl.prompt_be.entities.models.CustomerDetails;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class KorapayPaymentRequest {
 
     private int amount;
     private String redirect_url;
+    private List<String> channels;
     private String currency;
     private String reference;
     private String narration;

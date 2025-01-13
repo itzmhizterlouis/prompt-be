@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -139,6 +140,7 @@ public class PaymentService {
                 .amount(amount)
                 .currency("NGN")
                 .reference(paymentId.toString())
+                .channels(List.of("pay_with_bank", "bank_transfer", "card"))
                 .customer(
                         CustomerDetails.builder()
                                 .email(user.getEmail())
