@@ -134,7 +134,7 @@ public class UserWalletService {
             }
             else {
 
-                addAmountToUserWallet(user.getUserId(), -payment.getAmount()); //TODO: Remove this for failed transfer
+//                addAmountToUserWallet(user.getUserId(), -payment.getAmount()); //TODO: Remove this for failed transfer
 
                 System.out.println("Transfer failed");
                 emailService.sendSimpleMail(
