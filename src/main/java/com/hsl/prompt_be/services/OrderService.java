@@ -87,7 +87,7 @@ public class OrderService {
                 orderResponse.getCustomerName() + " placed an order to be received at "
                         + convertInstantToHumanReadable(orderResponse.getTimeExpected()) +
                         "\nAccess the order at: https://printhub.ng/orders/" + order.getOrderId() +
-                        "\nThis \uD83D\uDC46 not working try: https://printhub.ng",
+                        "\nPlease wait for payment confirmation via email before printing",
                 "You placed an order to " + orderResponse.getPrinterName() + " to be received at "
                         + convertInstantToHumanReadable(orderResponse.getTimeExpected()) //+
 //                        "\nView order details at: https://printhub.ng/orders/" + order.getOrderId()
