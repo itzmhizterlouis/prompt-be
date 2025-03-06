@@ -4,6 +4,7 @@ import com.hsl.prompt_be.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -53,6 +54,12 @@ public class SecurityConfiguration {
                                 "/swagger-ui/**", "/v3/api-docs/**", "/orders/payments/confirm",
                                 "/printers/cron/open_status/**", "/user_wallet/webhook"
                         ).permitAll() // Allow access to "/auth/**"
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                // printers endpoints should be non protected
+                                "/printers/**"
+                        ).permitAll()
                         .anyRequest().authenticated() // Require authentication for all other requests
                 )
                 .sessionManagement(session -> session
