@@ -16,12 +16,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
+
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -43,7 +43,10 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http, OAuth2LoginFailureHandler failureHandler,
+            OAuth2LoginSuccessHandler successHandler
+    ) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF
                 .cors(httpSecurityCorsConfigurer -> corsConfigurationSource())
@@ -52,7 +55,7 @@ public class SecurityConfiguration {
                                 "/authentication/signup", "/authentication/login", "/authentication/generate-otp/**",
                                 "/authentication/verify-otp", "/authentication/{userId}/printers",
                                 "/swagger-ui/**", "/v3/api-docs/**", "/orders/payments/confirm",
-                                "/printers/cron/open_status/**", "/user_wallet/webhook"
+                                "/printers/cron/open_status/**", "/user_wallet/webhook", "/authentication/oauth-login/**"
                         ).permitAll() // Allow access to "/auth/**"
 
                         .requestMatchers(
@@ -64,6 +67,11 @@ public class SecurityConfiguration {
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Set session policy to stateless
+                )
+                .oauth2Login(
+                        oauth2 -> oauth2
+                                .successHandler(successHandler)
+                                .failureHandler(failureHandler)
                 )
                 .authenticationProvider(authenticationProvider) // Add custom authentication provider
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter before UsernamePasswordAuthenticationFilter

@@ -36,6 +36,17 @@ spring:
     password: ${DB_PASSWORD}
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${CLIENT_ID}
+            client-secret: ${CLIENT_SECRET}
+            scope: profile, email
+          provider:
+            google:
+              redirect-uri: ${REDIRECT_URI}
 security:
   jwt:
     secret-key: ${JWT_SECRET}
@@ -57,3 +68,7 @@ korapay:
     key:
       secret: ${KORAPAY_API_SECRET}
       public: ${KORAPAY_API_PUBLIC_KEY}
+
+application:
+  base-url: ${BASE_URL}
+  oauth-login: ${OAUTH2_LOGIN_ROUTE}

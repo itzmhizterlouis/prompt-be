@@ -15,7 +15,14 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User findByUserId(UUID userId) throws UserNotFoundException {
-
         return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public User findUserByEmail(String email) throws UserNotFoundException {
+        return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 }
