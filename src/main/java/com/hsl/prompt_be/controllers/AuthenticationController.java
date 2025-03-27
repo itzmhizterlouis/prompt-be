@@ -13,6 +13,7 @@ import com.hsl.prompt_be.exceptions.PrinthubException;
 import com.hsl.prompt_be.exceptions.UserNotFoundException;
 import com.hsl.prompt_be.exceptions.UserWalletNotFoundException;
 import com.hsl.prompt_be.services.AuthenticationService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -72,5 +73,11 @@ public class AuthenticationController {
     public Printer createPrinter(@RequestBody PrinterRequest request, @PathVariable UUID userId) throws UserNotFoundException {
 
         return authenticationService.createPrinter(request, userId);
+    }
+
+    @Hidden
+    @GetMapping("oauth-login/{email}")
+    public LoginResponse oauthLogin(@PathVariable String email) throws UserWalletNotFoundException, UserNotFoundException {
+        return authenticationService.oauthLogin(email);
     }
 }

@@ -47,6 +47,7 @@ public class AuthenticationService {
     private final PrinterRepository printerRepository;
     private final UserWalletService userWalletService;
     private final PrinterService printerService;
+    private final OauthUserService oauthUserService;
 
     @Transactional
     public UserResponse signUp(UserRequest userRequest) {
@@ -56,6 +57,7 @@ public class AuthenticationService {
                 .lastName(userRequest.getLastName())
                 .email(userRequest.getEmail())
                 .password(passwordEncoder.encode(userRequest.getPassword()))
+                .emailVerified(userRequest.isEmailVerified())
                 .build();
 
         userRepository.save(user);
@@ -203,5 +205,29 @@ public class AuthenticationService {
             userOtpRepository.delete(userOtp);
             throw new OtpNotFoundException();
         }
+    }
+
+    public LoginResponse oauthLogin(String email) throws UserWalletNotFoundException, UserNotFoundException {
+
+        oauthUserService.findByEmail(email);
+
+        User user = userRepository.findByEmail(email).orElseThrow();
+        String token = jwtService.generateToken(user);
+        UUID printerId = null;
+
+        if (user.isPrinter()) {
+
+            printerId = printerService.getPrinterByUserId(user.getUserId()).get().getPrinterId();
+        }
+
+        return LoginResponse.builder()
+                .token(token)
+                .isPrinter(user.isPrinter())
+                .isEmailVerified(user.isEmailVerified())
+                .isEnabled(user.isEnabled())
+                .userId(user.getUserId())
+                .printerId(printerId)
+                .balance(userWalletService.findByUserId(user.getUserId()).getBalance())
+                .build();
     }
 }
