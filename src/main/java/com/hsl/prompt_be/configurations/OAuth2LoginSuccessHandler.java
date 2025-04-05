@@ -2,11 +2,13 @@ package com.hsl.prompt_be.configurations;
 
 import com.hsl.prompt_be.entities.models.OauthUser;
 import com.hsl.prompt_be.entities.requests.UserRequest;
+import com.hsl.prompt_be.entities.responses.LoginResponse;
 import com.hsl.prompt_be.services.AuthenticationService;
 import com.hsl.prompt_be.services.OauthUserService;
 import com.hsl.prompt_be.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -17,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -25,11 +28,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final UserService userService;
     private final OauthUserService oauthUserService;
 
-    @Value("${application.base-url}")
-    private String BASE_URL;
-
-    @Value("${application.oauth-login}")
-    private String OAUTH_LOGIN_ROUTE;
+    @Value("${application.oauth.redirect-url}")
+    private String OAUTH_REDIRECT_URL;
 
     @SneakyThrows
     @Override
@@ -61,7 +61,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             oauthUserService.save(oauthUser);
         }
 
-        System.out.println(BASE_URL);
-        response.sendRedirect(BASE_URL + OAUTH_LOGIN_ROUTE + "/" + email);
+        LoginResponse loginResponse = authenticationService.oauthLogin(email);
+        response.sendRedirect(OAUTH_REDIRECT_URL + "/" + loginResponse.getToken());
     }
 }
