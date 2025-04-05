@@ -70,5 +70,5 @@ korapay:
       public: ${KORAPAY_API_PUBLIC_KEY}
 
 application:
-  base-url: ${BASE_URL}
-  oauth-login: ${OAUTH2_LOGIN_ROUTE}
+  oauth:
+    redirect-url: ${OAUTH2_FRONTEND_REDIRECT_URL}
